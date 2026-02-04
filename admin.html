@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Keemat's Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .order-card { transition: all 0.3s ease; }
+        .order-card:hover { transform: translateY(-2px); }
+        .status-paid { border-left: 6px solid #10b981 !important; background-color: #f0fdf4; }
+        .status-pending { border-left: 6px solid #f59e0b !important; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen pb-20">
+
+    <nav class="bg-black text-white p-6 shadow-xl sticky top-0 z-50">
+        <div class="container mx-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-xl font-bold tracking-widest uppercase">Keemat's Orders</h1>
+                <button onclick="location.reload()" class="bg-yellow-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-500 transition">
+                    <i class="fas fa-sync-alt mr-2"></i> REFRESH
+                </button>
+            </div>
+            
+            <div class="bg-zinc-900 p-4 rounded-xl flex justify-around items-center border border-zinc-800">
+                <div class="text-center">
+                    <p class="text-zinc-400 text-[10px] uppercase font-bold">Verified Revenue</p>
+                    <p class="text-2xl font-bold text-green-500">GHS <span id="total-revenue">0.00</span></p>
+                </div>
+                <div class="h-10 w-[1px] bg-zinc-700"></div>
+                <div class="text-center">
+                    <p class="text-zinc-400 text-[10px] uppercase font-bold">Total Orders</p>
+                    <p class="text-2xl font-bold text-white" id="order-count">0</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="relative max-w-xl mx-auto mb-8">
+            <input type="text" id="admin-search" placeholder="Search by ID, Name or Phone..." 
+                   class="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-2xl focus:border-black outline-none shadow-sm transition">
+            <i class="fas fa-search absolute left-4 top-5 text-gray-400"></i>
+        </div>
+
+        <div id="admin-loader" class="flex justify-center my-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+        </div>
+
+        <div id="orders-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
+            authDomain: "keematscollection.firebaseapp.com",
+            projectId: "keematscollection",
+            storageBucket: "keematscollection.firebasestorage.app",
+            messagingSenderId: "344751322745",
+            appId: "1:344751322745:web:b57abb74c33056a0b886a8",
+            measurementId: "G-PPS020WTZ2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function fetchOrders() {
+            const container = document.getElementById('orders-container');
+            const loader = document.getElementById('admin-loader');
+            const revenueEl = document.getElementById('total-revenue');
+            const countEl = document.getElementById('order-count');
+            
+            try {
+                const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                
+                loader.style.display = 'none';
+                container.innerHTML = "";
+                
+                let totalVerifiedRevenue = 0;
+                let totalCount = 0;
+
+                querySnapshot.forEach((orderDoc) => {
+                    const order = orderDoc.data();
+                    const docId = orderDoc.id;
+                    const isPaid = order.status === "Verified Paid";
+                    
+                    totalCount++;
+                    if(isPaid) {
+                        totalVerifiedRevenue += parseFloat(order.totalAmount);
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = `order-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 ${isPaid ? 'status-paid' : 'status-pending'}`;
+                    card.dataset.search = `${order.orderId} ${order.customerName} ${order.contact}`.toLowerCase();
+
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order #${order.orderId}</span>
+                                <h3 class="text-xl font-bold text-gray-900">${order.customerName}</h3>
+                            </div>
+                            <span class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase ${isPaid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
+                                ${isPaid ? '<i class="fas fa-check-circle mr-1"></i> Paid' : '<i class="fas fa-clock mr-1"></i> Awaiting Proof'}
+                            </span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-y-4 text-sm mb-6">
+                            <div>
+                                <p class="text-gray-400 text-xs">Phone Number</p>
+                                <p class="font-bold underline">${order.contact}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-400 text-xs">Total Amount</p>
+                                <p class="font-bold text-lg">GHS ${order.totalAmount}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-gray-400 text-xs">Delivery Location</p>
+                                <p class="font-bold text-gray-700">${order.location}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-xl mb-6">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Package Contents</p>
+                            <ul class="text-sm space-y-1">
+                                ${order.items.map(i => `<li class="flex justify-between"><span>${i.name} (x${i.qty})</span> <span class="text-gray-400">GHS ${i.price}</span></li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="flex gap-3">
+                            ${!isPaid ? `
+                                <button onclick="window.verifyOrder('${docId}')" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-green-700 transition shadow-lg shadow-green-100">
+                                    VERIFY PAYMENT
+                                </button>
+                            ` : `
+                                <button disabled class="flex-1 bg-gray-100 text-gray-400 py-3 rounded-xl font-bold text-sm cursor-not-allowed">
+                                    ALREADY VERIFIED
+                                </button>
+                            `}
+                            <button onclick="window.deleteOrder('${docId}')" class="w-12 h-12 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+                revenueEl.innerText = totalVerifiedRevenue.toFixed(2);
+                countEl.innerText = totalCount;
+
+            } catch (err) {
+                console.error(err);
+                loader.innerHTML = `<p class="text-red-500">Error connecting to Firebase.</p>`;
+            }
+        }
+
+        // Action Functions
+        window.verifyOrder = async (docId) => {
+            if(confirm("Verify that you have received payment for this order?")) {
+                try {
+                    const docRef = doc(db, "orders", docId);
+                    await updateDoc(docRef, { status: "Verified Paid" });
+                    fetchOrders(); // Refresh data
+                } catch (e) { alert("Error updating order."); }
+            }
+        };
+
+        window.deleteOrder = async (docId) => {
+            if(confirm("Are you sure? This will remove the order from your history permanently.")) {
+                try {
+                    await deleteDoc(doc(db, "orders", docId));
+                    fetchOrders();
+                } catch (e) { alert("Error deleting order."); }
+            }
+        };
+
+        // Search Logic
+        document.getElementById('admin-search').onkeyup = (e) => {
+            const val = e.target.value.toLowerCase();
+            document.querySelectorAll('.order-card').forEach(card => {
+                card.style.display = card.dataset.search.includes(val) ? 'block' : 'none';
+            });
+        };
+
+        fetchOrders();
+    </script>
+</body>
+</html>
