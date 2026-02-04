@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Hide everything until password is verified */
         #admin-main-content { display: none; }
         .order-card { transition: all 0.3s ease; }
         .order-card:hover { transform: translateY(-2px); }
@@ -21,21 +20,26 @@
         <nav class="bg-black text-white p-6 shadow-xl sticky top-0 z-50">
             <div class="container mx-auto">
                 <div class="flex justify-between items-center mb-4">
-                    <h1 class="text-xl font-bold tracking-widest uppercase">Keemat's Orders</h1>
+                    <h1 class="text-xl font-bold tracking-widest uppercase">Keemat's Dashboard</h1>
                     <button onclick="location.reload()" class="bg-yellow-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-500 transition">
                         <i class="fas fa-sync-alt mr-2"></i> REFRESH
                     </button>
                 </div>
                 
-                <div class="bg-zinc-900 p-4 rounded-xl flex justify-around items-center border border-zinc-800">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800">
                     <div class="text-center">
-                        <p class="text-zinc-400 text-[10px] uppercase font-bold">Verified Revenue</p>
-                        <p class="text-2xl font-bold text-green-500">GHS <span id="total-revenue">0.00</span></p>
+                        <p class="text-zinc-400 text-[10px] uppercase font-bold tracking-widest">Monthly Revenue</p>
+                        <p class="text-xl font-bold text-green-500">GHS <span id="monthly-revenue">0.00</span></p>
                     </div>
-                    <div class="h-10 w-[1px] bg-zinc-700"></div>
+                    <div class="hidden md:block h-10 w-[1px] bg-zinc-700 mx-auto"></div>
                     <div class="text-center">
-                        <p class="text-zinc-400 text-[10px] uppercase font-bold">Total Orders</p>
-                        <p class="text-2xl font-bold text-white" id="order-count">0</p>
+                        <p class="text-zinc-400 text-[10px] uppercase font-bold tracking-widest">Annual Revenue</p>
+                        <p class="text-xl font-bold text-white">GHS <span id="annual-revenue">0.00</span></p>
+                    </div>
+                    <div class="md:hidden h-[1px] w-full bg-zinc-700"></div>
+                    <div class="text-center md:border-l md:border-zinc-700">
+                        <p class="text-zinc-400 text-[10px] uppercase font-bold tracking-widest">Total Orders</p>
+                        <p class="text-xl font-bold text-yellow-500" id="order-count">0</p>
                     </div>
                 </div>
             </div>
@@ -60,7 +64,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-        // PASSWORD PROTECTION
         const accessKey = prompt("Please enter the Admin Password to continue:");
 
         if (accessKey === "Mnop1233qrstS") {
@@ -88,7 +91,8 @@
             async function fetchOrders() {
                 const container = document.getElementById('orders-container');
                 const loader = document.getElementById('admin-loader');
-                const revenueEl = document.getElementById('total-revenue');
+                const monthlyEl = document.getElementById('monthly-revenue');
+                const annualEl = document.getElementById('annual-revenue');
                 const countEl = document.getElementById('order-count');
                 
                 try {
@@ -98,17 +102,34 @@
                     loader.style.display = 'none';
                     container.innerHTML = "";
                     
-                    let totalVerifiedRevenue = 0;
+                    let monthlyRevenue = 0;
+                    let annualRevenue = 0;
                     let totalCount = 0;
+
+                    const now = new Date();
+                    const currentMonth = now.getMonth();
+                    const currentYear = now.getFullYear();
 
                     querySnapshot.forEach((orderDoc) => {
                         const order = orderDoc.data();
                         const docId = orderDoc.id;
                         const isPaid = order.status === "Verified Paid";
                         
+                        // Parse Date
+                        const orderDate = order.timestamp ? order.timestamp.toDate() : new Date();
+                        const orderMonth = orderDate.getMonth();
+                        const orderYear = orderDate.getFullYear();
+                        const displayDate = orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+
                         totalCount++;
                         if(isPaid) {
-                            totalVerifiedRevenue += parseFloat(order.totalAmount);
+                            const amount = parseFloat(order.totalAmount) || 0;
+                            if(orderYear === currentYear) {
+                                annualRevenue += amount;
+                                if(orderMonth === currentMonth) {
+                                    monthlyRevenue += amount;
+                                }
+                            }
                         }
 
                         const card = document.createElement('div');
@@ -118,33 +139,36 @@
                         card.innerHTML = `
                             <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order #${order.orderId}</span>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order #${order.orderId}</span>
+                                        <span class="text-[10px] text-zinc-400">• ${displayDate}</span>
+                                    </div>
                                     <h3 class="text-xl font-bold text-gray-900">${order.customerName}</h3>
                                 </div>
                                 <span class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase ${isPaid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
-                                    ${isPaid ? '<i class="fas fa-check-circle mr-1"></i> Paid' : '<i class="fas fa-clock mr-1"></i> Awaiting Proof'}
+                                    ${isPaid ? '<i class="fas fa-check-circle mr-1"></i> Paid' : '<i class="fas fa-clock mr-1"></i> Pending'}
                                 </span>
                             </div>
                             
                             <div class="grid grid-cols-2 gap-y-4 text-sm mb-6">
                                 <div>
-                                    <p class="text-gray-400 text-xs">Phone Number</p>
-                                    <p class="font-bold underline">${order.contact}</p>
+                                    <p class="text-gray-400 text-xs font-medium">Contact</p>
+                                    <p class="font-bold underline text-blue-600">${order.contact}</p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-400 text-xs">Total Amount</p>
+                                    <p class="text-gray-400 text-xs font-medium">Total Amount</p>
                                     <p class="font-bold text-lg">GHS ${order.totalAmount}</p>
                                 </div>
                                 <div class="col-span-2">
-                                    <p class="text-gray-400 text-xs">Delivery Location</p>
+                                    <p class="text-gray-400 text-xs font-medium">Delivery To</p>
                                     <p class="font-bold text-gray-700">${order.location}</p>
                                 </div>
                             </div>
 
-                            <div class="bg-gray-50 p-4 rounded-xl mb-6">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Items</p>
+                            <div class="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-100">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Order Items</p>
                                 <ul class="text-sm space-y-1">
-                                    ${order.items.map(i => `<li class="flex justify-between"><span>${i.name} (x${i.qty})</span> <span class="text-gray-400">GHS ${i.price}</span></li>`).join('')}
+                                    ${order.items.map(i => `<li class="flex justify-between"><span>${i.name} (x${i.qty})</span> <span class="text-gray-500">GHS ${i.price}</span></li>`).join('')}
                                 </ul>
                             </div>
 
@@ -166,12 +190,15 @@
                         container.appendChild(card);
                     });
 
-                    revenueEl.innerText = totalVerifiedRevenue.toFixed(2);
+                    // Format numbers with commas for readability
+                    const formatter = new Intl.NumberFormat('en-GH', { minimumFractionDigits: 2 });
+                    monthlyEl.innerText = formatter.format(monthlyRevenue);
+                    annualEl.innerText = formatter.format(annualRevenue);
                     countEl.innerText = totalCount;
 
                 } catch (err) {
                     console.error(err);
-                    loader.innerHTML = `<p class="text-red-500 text-center">Connection failed. Check your Firebase Rules.</p>`;
+                    loader.innerHTML = `<p class="text-red-500 text-center">Connection failed. Check Firestore rules or index.</p>`;
                 }
             }
 
@@ -186,7 +213,7 @@
             };
 
             window.deleteOrder = async (docId) => {
-                if(confirm("Delete this order?")) {
+                if(confirm("Permanently delete this order?")) {
                     try {
                         await deleteDoc(doc(db, "orders", docId));
                         fetchOrders();
