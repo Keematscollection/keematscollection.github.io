@@ -3,225 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production & Inventory | Keemat's Collection</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Keemat Admin</title>
     <style>
-        .edit-mode { border: 2px solid #f59e0b !important; background-color: #fffbeb; }
-        #auth-overlay { backdrop-filter: blur(8px); display: none; }
+        body { font-family: sans-serif; background: #111; color: white; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .stats-card { background: #222; padding: 20px; border-radius: 10px; margin-bottom: 10px; text-align: center; border: 1px solid #333; }
+        .stat-val { font-size: 1.5rem; color: #25D366; font-weight: bold; }
+        .stat-label { font-size: 0.8rem; color: #aaa; text-transform: uppercase; }
+        .order-card { background: white; color: black; border-radius: 10px; padding: 15px; margin-bottom: 15px; border-left: 5px solid #25D366; }
+        .order-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; margin-bottom: 5px; }
+        .order-id { font-weight: bold; font-size: 1.1rem; }
+        .order-total { font-size: 1.2rem; font-weight: bold; text-align: right; margin-top: 10px; }
+        input, button { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 5px; border: none; }
+        .btn-action { background: #d4af37; color: black; font-weight: bold; cursor: pointer; }
+        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:999; display:flex; flex-direction:column; justify-content:center; padding:20px; box-sizing:border-box;}
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen pb-20">
+<body>
 
-    <div id="auth-overlay" class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
-            <div class="text-center mb-8">
-                <div class="bg-black text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-lock text-2xl"></i>
-                </div>
-                <h2 class="text-2xl font-black uppercase tracking-tight">Admin Access</h2>
-                <p class="text-gray-400 text-sm">Sign in to manage Keemat's Collection</p>
-            </div>
-            <form id="login-form" class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email Address" required class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition">
-                <input type="password" id="login-password" placeholder="Password" required class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition">
-                <button type="submit" class="w-full bg-black text-white py-4 rounded-2xl font-bold hover:bg-zinc-800 transition">SIGN IN</button>
-            </form>
-        </div>
-    </div>
+<div id="login-overlay">
+    <h2 style="text-align:center; color:#d4af37;">ADMIN LOGIN</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button class="btn-action" onclick="login()">LOGIN</button>
+</div>
 
-    <nav class="bg-black text-white p-6 shadow-xl sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-widest uppercase">Inventory Manager</h1>
-            <div class="flex items-center gap-4">
-                <button id="logout-btn" class="text-xs text-gray-400 hover:text-white uppercase font-bold tracking-widest">Logout</button>
-                <a href="melma's_order.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
-                    <i class="fas fa-arrow-left mr-2"></i> Orders
-                </a>
-            </div>
-        </div>
-    </nav>
+<div class="header"><h3>KEEMAT DASHBOARD</h3><button onclick="logout()" style="width:auto; background:red; color:white;">Logout</button></div>
 
-    <div class="container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-1">
-            <div id="form-container" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-28">
-                <h2 id="form-title" class="text-lg font-bold mb-6 flex items-center gap-2">
-                    <i class="fas fa-plus-circle text-green-500"></i> Add New Product
-                </h2>
-                
-                <form id="product-form" class="space-y-4">
-                    <input type="hidden" id="edit-doc-id">
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Image URL</label>
-                        <input type="url" id="p-image-url" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Item Name</label>
-                        <input type="text" id="p-name" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Price (GHS)</label>
-                            <input type="number" id="p-price" step="0.01" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Stock</label>
-                            <input type="number" id="p-stock" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Sizes (e.g. S, M, L, XL)</label>
-                        <input type="text" id="p-sizes" placeholder="Separate with commas" class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Description</label>
-                        <textarea id="p-desc" rows="3" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm"></textarea>
-                    </div>
-                    <div class="flex gap-2 pt-2">
-                        <button type="submit" id="submit-btn" class="flex-1 bg-black text-white py-3 rounded-xl font-bold hover:bg-zinc-800 transition">SAVE PRODUCT</button>
-                        <button type="button" id="cancel-edit" class="hidden bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold" onclick="resetForm()">CANCEL</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+<div class="stats-card">
+    <div class="stat-val" id="monthlyRev">GHS 0.00</div><div class="stat-label">Monthly Revenue</div>
+    <hr style="border-color:#333">
+    <div class="stat-val" id="annualRev">GHS 0.00</div><div class="stat-label">Annual Revenue</div>
+    <div class="stat-val" id="totalOrders" style="color:white; margin-top:10px;">0</div><div class="stat-label">Total Orders</div>
+</div>
 
-        <div class="lg:col-span-2">
-            <h2 class="text-xl font-bold mb-6">Current Inventory</h2>
-            <div id="inventory-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm"></div>
-        </div>
-    </div>
+<button class="btn-action" onclick="window.location.href='melmas_production.html'">GO TO INVENTORY</button>
+<button style="background:#333; color:white" onclick="location.reload()">REFRESH</button>
+<input type="text" id="searchOrder" placeholder="Search ID, Name or Phone..." onkeyup="filterOrders()">
+<div id="ordersList"></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
-            authDomain: "keematscollection.firebaseapp.com",
-            projectId: "keematscollection",
-            storageBucket: "keematscollection.firebasestorage.app",
-            messagingSenderId: "344751322745",
-            appId: "1:344751322745:web:b57abb74c33056a0b886a8"
-        };
+    const firebaseConfig = {
+      apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
+      authDomain: "keematscollection.firebaseapp.com",
+      projectId: "keematscollection",
+      storageBucket: "keematscollection.firebasestorage.app",
+      messagingSenderId: "344751322745",
+      appId: "1:344751322745:web:b57abb74c33056a0b886a8",
+      measurementId: "G-PPS020WTZ2",
+      databaseURL: "https://keematscollection-default-rtdb.firebaseio.com"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const adminUID = "q2LX0nZwGtXMbsW4FKRQztr76eA3";
+    let allOrders = [];
 
-        const form = document.getElementById('product-form');
-        const listContainer = document.getElementById('inventory-list');
-        const submitBtn = document.getElementById('submit-btn');
-        const authOverlay = document.getElementById('auth-overlay');
+    window.login = () => { signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(alert); }
+    window.logout = () => signOut(auth);
 
-        // AUTHENTICATION GUARD
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                authOverlay.style.display = 'none';
-                fetchProducts();
-            } else {
-                authOverlay.style.display = 'flex';
-                listContainer.innerHTML = "";
+    onAuthStateChanged(auth, (user) => {
+        if (user && user.uid === adminUID) {
+            document.getElementById('login-overlay').style.display = 'none';
+            loadOrders();
+        } else { document.getElementById('login-overlay').style.display = 'flex'; }
+    });
+
+    function loadOrders() {
+        onValue(ref(db, 'orders'), (snapshot) => {
+            const data = snapshot.val(); allOrders = [];
+            if(data) {
+                Object.keys(data).forEach(key => allOrders.push(data[key]));
+                allOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                calculateStats(); renderOrders(allOrders);
             }
         });
+    }
 
-        // LOGIN HANDLER
-        document.getElementById('login-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const pass = document.getElementById('login-password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (err) { alert("Invalid credentials: " + err.message); }
-        };
+    function calculateStats() {
+        const now = new Date(); let mR = 0; let yR = 0;
+        allOrders.forEach(o => {
+            const d = o.timestamp ? new Date(o.timestamp) : now;
+            if(d.getFullYear() === now.getFullYear()) { yR += o.totalAmount; if(d.getMonth() === now.getMonth()) mR += o.totalAmount; }
+        });
+        document.getElementById('monthlyRev').innerText = `GHS ${mR.toFixed(2)}`;
+        document.getElementById('annualRev').innerText = `GHS ${yR.toFixed(2)}`;
+        document.getElementById('totalOrders').innerText = allOrders.length;
+    }
 
-        // LOGOUT HANDLER
-        document.getElementById('logout-btn').onclick = () => signOut(auth);
+    window.renderOrders = (list) => {
+        document.getElementById('ordersList').innerHTML = list.map(o => `
+            <div class="order-card">
+                <div class="order-header"><span>${o.orderId}</span><span>${o.timestamp ? new Date(o.timestamp).toLocaleString() : ''}</span></div>
+                <div class="order-id">${o.customerName}</div>
+                <div style="color:#007bff">${o.contact}</div>
+                <div style="font-size:0.8rem; margin:5px 0">Loc: ${o.location}</div>
+                <div class="order-total">GHS ${o.totalAmount}</div>
+            </div>`).join('');
+    }
 
-        async function fetchProducts() {
-            listContainer.innerHTML = `<div class="p-10 text-gray-400">Loading inventory...</div>`;
-            try {
-                const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
-                const querySnapshot = await getDocs(q);
-                listContainer.innerHTML = "";
-                querySnapshot.forEach((docSnap) => {
-                    const p = docSnap.data();
-                    const id = docSnap.id;
-                    const card = document.createElement('div');
-                    card.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-4";
-                    card.innerHTML = `
-                        <img src="${p.imageUrl}" class="w-20 h-20 object-cover rounded-lg bg-gray-50">
-                        <div class="flex-1">
-                            <h4 class="font-bold text-gray-900">${p.name}</h4>
-                            <p class="text-xs text-gray-400 mb-2">GHS ${p.price} | Stock: ${p.stock}</p>
-                            <div class="flex gap-2">
-                                <button onclick="window.startEdit('${id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="text-[10px] font-bold bg-amber-50 text-amber-600 px-3 py-1 rounded-md uppercase">Edit</button>
-                                <button onclick="window.deleteProduct('${id}')" class="text-[10px] font-bold bg-red-50 text-red-600 px-3 py-1 rounded-md uppercase">Delete</button>
-                            </div>
-                        </div>
-                    `;
-                    listContainer.appendChild(card);
-                });
-            } catch (err) { console.error(err); }
-        }
-
-        window.startEdit = (id, data) => {
-            document.getElementById('edit-doc-id').value = id;
-            document.getElementById('p-image-url').value = data.imageUrl;
-            document.getElementById('p-name').value = data.name;
-            document.getElementById('p-price').value = data.price;
-            document.getElementById('p-stock').value = data.stock;
-            document.getElementById('p-sizes').value = data.sizes || "";
-            document.getElementById('p-desc').value = data.description;
-            document.getElementById('form-container').classList.add('edit-mode');
-            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-amber-500"></i> Editing: ${data.name}`;
-            document.getElementById('cancel-edit').classList.remove('hidden');
-            submitBtn.innerText = "UPDATE PRODUCT";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-
-        window.resetForm = () => {
-            form.reset();
-            document.getElementById('edit-doc-id').value = "";
-            document.getElementById('form-container').classList.remove('edit-mode');
-            document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> Add New Product`;
-            document.getElementById('cancel-edit').classList.add('hidden');
-            submitBtn.innerText = "SAVE PRODUCT";
-        };
-
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('edit-doc-id').value;
-            const productData = {
-                imageUrl: document.getElementById('p-image-url').value,
-                name: document.getElementById('p-name').value,
-                price: parseFloat(document.getElementById('p-price').value),
-                stock: parseInt(document.getElementById('p-stock').value),
-                sizes: document.getElementById('p-sizes').value,
-                description: document.getElementById('p-desc').value,
-                timestamp: serverTimestamp()
-            };
-            try {
-                if (id) {
-                    await updateDoc(doc(db, "products", id), productData);
-                    alert("Product updated!");
-                } else {
-                    await addDoc(collection(db, "products"), productData);
-                    alert("Product added!");
-                }
-                resetForm();
-                fetchProducts();
-            } catch (err) { alert("Permission denied: " + err.message); }
-        };
-
-        window.deleteProduct = async (id) => {
-            if (confirm("Delete this item permanently?")) {
-                try {
-                    await deleteDoc(doc(db, "products", id));
-                    fetchProducts();
-                } catch (err) { alert("Delete failed: " + err.message); }
-            }
-        };
-    </script>
+    window.filterOrders = () => {
+        const q = document.getElementById('searchOrder').value.toLowerCase();
+        renderOrders(allOrders.filter(o => o.orderId.toLowerCase().includes(q) || o.customerName.toLowerCase().includes(q) || o.contact.includes(q)));
+    }
+</script>
 </body>
 </html>
