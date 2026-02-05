@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production | Keemat's Collection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <nav class="bg-black text-white p-6 shadow-xl mb-8">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-widest uppercase">Add New Stock</h1>
+            <a href="admin.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
+                <i class="fas fa-arrow-left mr-2"></i> Dashboard
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-2xl">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <form id="product-form" class="p-8 space-y-5">
+                
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Name</label>
+                    <input type="text" id="p-name" required placeholder="e.g. Vintage Graphic Tee" 
+                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Price (GHS)</label>
+                        <input type="number" id="p-price" step="0.01" required placeholder="0.00" 
+                               class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Stock Level</label>
+                        <input type="number" id="p-stock" required placeholder="10" 
+                               class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Description</label>
+                    <textarea id="p-desc" rows="4" required placeholder="Describe the item material, size, and fit..." 
+                              class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition"></textarea>
+                </div>
+
+                <button type="submit" id="submit-btn" 
+                        class="w-full bg-black text-white py-4 rounded-2xl font-bold hover:bg-zinc-800 transition transform active:scale-95 flex items-center justify-center gap-3">
+                    <span id="btn-text">UPLOAD PRODUCT</span>
+                    <div id="btn-loader" class="hidden animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+
+        // Using your specific Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
+            authDomain: "keematscollection.firebaseapp.com",
+            projectId: "keematscollection",
+            storageBucket: "keematscollection.firebasestorage.app",
+            messagingSenderId: "344751322745",
+            appId: "1:344751322745:web:b57abb74c33056a0b886a8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const productForm = document.getElementById('product-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+
+        productForm.onsubmit = async (e) => {
+            e.preventDefault();
+
+            // UI Feedback: Loading state
+            submitBtn.disabled = true;
+            btnText.innerText = "UPLOADING...";
+            btnLoader.classList.remove('hidden');
+
+            const newProduct = {
+                name: document.getElementById('p-name').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                stock: parseInt(document.getElementById('p-stock').value),
+                description: document.getElementById('p-desc').value,
+                timestamp: serverTimestamp() // To sort by newest arrival
+            };
+
+            try {
+                await addDoc(collection(db, "products"), newProduct);
+                alert("Success! " + newProduct.name + " is now in your database.");
+                productForm.reset();
+            } catch (error) {
+                console.error("Upload Error:", error);
+                alert("Error: " + error.message);
+            } finally {
+                // UI Feedback: Reset state
+                submitBtn.disabled = false;
+                btnText.innerText = "UPLOAD PRODUCT";
+                btnLoader.classList.add('hidden');
+            }
+        };
+    </script>
+</body>
+</html>
+
