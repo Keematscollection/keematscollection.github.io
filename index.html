@@ -4,23 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keemat's Collection</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.0.2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #000; --accent: #d4af37; --bg: #f8f8f8; --success: #25D366; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding-bottom: 80px; background: var(--bg); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: var(--bg); padding-bottom: 80px; }
         header { background: var(--primary); color: white; padding: 30px 20px; text-align: center; position: relative; }
-        .slogan { color: var(--accent); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; margin-top: 5px; }
-        .header-img { width: 140px; border-radius: 12px; border: 2px solid var(--accent); margin-top: 15px; }
-        .cart-icon { position: absolute; top: 80px; right: 25px; font-size: 1.7rem; color: var(--accent); cursor: pointer; }
-        .cart-count { position: absolute; top: -10px; right: -10px; background: #ff3b30; color: white; border-radius: 50%; padding: 3px 7px; font-size: 0.75rem; }
-        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; min-height: 200px; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .p-details { padding: 12px; }
-        .size-select { width: 100%; padding: 8px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; }
+        h1 { margin: 0; font-size: 1.6rem; letter-spacing: 3px; font-weight: 900; }
+        .slogan { color: var(--accent); font-size: 0.85rem; margin-top: 5px; font-weight: bold; text-transform: uppercase; }
+        .header-img { width: 140px; height: auto; margin-top: 15px; border-radius: 12px; border: 2px solid var(--accent); }
+        
+        .cart-icon { position: absolute; top: 80px; right: 25px; font-size: 1.7rem; cursor: pointer; color: var(--accent); z-index: 10; }
+        .cart-count { position: absolute; top: -10px; right: -10px; background: #ff3b30; color: white; border-radius: 50%; padding: 3px 7px; font-size: 0.75rem; font-weight: bold; }
+
+        .search-container { padding: 15px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        input[type="text"] { width: 100%; padding: 12px 20px; border: 1px solid #eee; border-radius: 25px; box-sizing: border-box; outline: none; background: #f9f9f9; }
+        
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .product-img { width: 100%; height: 200px; object-fit: cover; }
+        .p-details { padding: 12px; flex-grow: 1; }
+        .p-name { font-weight: bold; font-size: 0.9rem; color: #333; }
+        .p-price { color: var(--accent); font-weight: 800; font-size: 1.1rem; margin: 5px 0; }
+        
+        /* Layout for Size and Qty */
+        .size-select { width: 100%; padding: 8px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 0.8rem; }
         .qty-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 10px 0; background: #f0f0f0; border-radius: 8px; padding: 5px; }
-        .qty-btn { background: white; border: 1px solid #ddd; width: 30px; height: 30px; cursor: pointer; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
-        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .whatsapp-float { position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; z-index: 1000; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .qty-btn { background: white; border: 1px solid #ddd; border-radius: 4px; width: 30px; height: 30px; cursor: pointer; font-weight: bold; }
+        
+        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; cursor: pointer; border-radius: 8px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+        .flying-img { position: fixed; width: 50px; height: 50px; border-radius: 50%; z-index: 9999; transition: all 0.8s ease-in-out; object-fit: cover; pointer-events: none; }
+
+        /* Footer Sections */
+        .about-section { padding: 40px 20px; text-align: center; background: white; margin-top: 20px; border-top: 1px solid #eee; }
+        .about-section h3 { margin-bottom: 10px; font-size: 1.2rem; }
+        .about-section p { font-size: 0.9rem; color: #666; line-height: 1.6; max-width: 400px; margin: 0 auto; }
+        .back-to-top { display: block; margin-top: 20px; color: var(--accent); text-decoration: none; font-weight: bold; font-size: 0.8rem; }
+
+        /* Floating WhatsApp */
+        .whatsapp-float { position: fixed; bottom: 20px; left: 20px; background: var(--success); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 2px 2px 10px rgba(0,0,0,0.2); z-index: 1000; text-decoration: none; }
+
+        /* Cart Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; padding: 10px; box-sizing: border-box; }
+        .modal-content { background: white; margin: 0 auto; width: 100%; max-width: 450px; border-radius: 20px; overflow: hidden; position: relative; }
+        .modal-header { background: var(--primary); color: var(--accent); padding: 15px; text-align: center; }
+        .cart-body { padding: 20px; max-height: 70vh; overflow-y: auto; }
+        .delivery-notice { background: #fff1f1; border: 1px dashed #ff4d4d; color: #b30000; padding: 10px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; margin-bottom: 15px; }
+        
+        .checkout-form input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .btn-confirm { background: var(--success); color: white; border: none; width: 100%; padding: 15px; font-weight: 900; border-radius: 12px; cursor: pointer; margin-top: 10px; }
+        .btn-close { width: 100%; margin-top: 10px; background: #eee; border: none; border-radius: 10px; padding: 10px; font-weight: bold; color: #666; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -35,70 +67,171 @@
     </div>
 </header>
 
-<div class="product-grid" id="productContainer">
-    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #888;">Loading Collection...</div>
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search for outfits..." onkeyup="filterProducts()">
 </div>
 
-<a href="https://wa.me/233XXXXXXXXX" class="whatsapp-float">
+<div class="product-grid" id="productContainer"></div>
+
+<div class="about-section">
+    <h3>About Us</h3>
+    <p>We provide the best quality fashion at prices that fit your pocket.</p>
+    <a href="#" class="back-to-top">Back to Top ↑</a>
+</div>
+
+<a href="https://wa.me/233XXXXXXXXX" class="whatsapp-float" target="_blank">
     <i class="fab fa-whatsapp"></i>
 </a>
 
+<div id="cartModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 style="margin:0">YOUR CART</h2>
+            <button onclick="clearCart()" style="background:red; color:white; border:none; padding:5px 10px; border-radius:5px; font-size:0.7rem; margin-top:5px; cursor:pointer;">CLEAR ALL</button>
+        </div>
+        <div class="cart-body">
+            <div id="cartItems"></div>
+            <div class="delivery-notice">⚠️ NOTICE: Tamale deliveries cost 20Ghs. Outside deliveries discussed after payment.</div>
+            <div class="checkout-form">
+                <input type="text" id="cName" placeholder="Full Name">
+                <input type="tel" id="cPhone" placeholder="WhatsApp Number">
+                <input type="text" id="cLoc" placeholder="Location">
+                <button class="btn-confirm" onclick="processOrder()">CONFIRM ORDER</button>
+                <button class="btn-close" onclick="document.getElementById('cartModal').style.display='none'">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="module">
-    // RESTORED STABLE FIREBASE LINKS (No version hack here)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
     const firebaseConfig = {
+      apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
+      authDomain: "keematscollection.firebaseapp.com",
+      projectId: "keematscollection",
+      storageBucket: "keematscollection.firebasestorage.app",
+      messagingSenderId: "344751322745",
+      appId: "1:344751322745:web:b57abb74c33056a0b886a8",
+      measurementId: "G-PPS020WTZ2",
       databaseURL: "https://keematscollection-default-rtdb.firebaseio.com"
     };
-    
+
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+
     let products = [];
     let cart = JSON.parse(localStorage.getItem('keematCart')) || [];
 
-    // Listen for data
     onValue(ref(db, 'products'), (snapshot) => {
         const data = snapshot.val();
         products = [];
         if (data) {
             Object.keys(data).forEach(key => products.push({id: key, ...data[key]}));
             renderProducts(products);
-        } else {
-            document.getElementById('productContainer').innerHTML = "<div style='grid-column: 1/-1; text-align:center;'>No products found in database.</div>";
         }
-    }, (error) => {
-        console.error("Firebase Error:", error);
-        document.getElementById('productContainer').innerHTML = "<div style='grid-column: 1/-1; text-align:center; color:red;'>Error loading database. Check Firebase Rules.</div>";
     });
 
     window.renderProducts = (list) => {
-        document.getElementById('productContainer').innerHTML = list.map(p => `
+        document.getElementById('productContainer').innerHTML = list.map(p => {
+            const sizes = p.size ? p.size.split(',') : ['One Size'];
+            return `
             <div class="product-card">
-                <img src="${p.image}" style="width:100%; height:180px; object-fit:cover;">
+                <img src="${p.image}" class="product-img" id="img-${p.id}">
                 <div class="p-details">
-                    <div style="font-weight:bold; font-size:0.9rem;">${p.name}</div>
-                    <div style="color:#d4af37; font-weight:800; margin: 4px 0;">GHS ${p.price}</div>
-                    <div style="font-size: 0.7rem; color: #666;">Size: ${p.size}</div>
+                    <div class="p-name">${p.name}</div>
+                    <div class="p-price">GHS ${p.price}</div>
+                    
+                    <select class="size-select" id="size-${p.id}">
+                        ${sizes.map(s => `<option value="${s.trim()}">${s.trim()}</option>`).join('')}
+                    </select>
+
                     <div class="qty-controls">
                         <button class="qty-btn" onclick="changeQty('${p.id}', -1)">-</button>
-                        <span id="qty-val-${p.id}" style="font-weight:bold; width:20px; text-align:center;">1</span>
+                        <span id="qty-val-${p.id}" style="font-weight:bold; min-width:20px; text-align:center;">1</span>
                         <button class="qty-btn" onclick="changeQty('${p.id}', 1)">+</button>
                     </div>
-                    <button class="btn-add" onclick="addToCart('${p.id}')">ADD TO CART</button>
+
+                    <button class="btn-add" onclick="animateAndAdd('${p.id}')">ADD TO CART</button>
                 </div>
-            </div>`).join('');
-    };
+            </div>`;
+        }).join('');
+    }
 
     window.changeQty = (id, delta) => {
-        let el = document.getElementById(`qty-val-${id}`);
+        const el = document.getElementById(`qty-val-${id}`);
         let val = parseInt(el.innerText) + delta;
-        if(val > 0) el.innerText = val;
-    };
+        if(val < 1) val = 1;
+        el.innerText = val;
+    }
+
+    window.animateAndAdd = (id) => {
+        const img = document.getElementById(`img-${id}`);
+        const cartIcon = document.querySelector('.cart-icon');
+        const flyImg = img.cloneNode();
+        flyImg.classList.add('flying-img');
+        const rect = img.getBoundingClientRect();
+        const cartRect = cartIcon.getBoundingClientRect();
+        flyImg.style.left = rect.left + 'px';
+        flyImg.style.top = rect.top + 'px';
+        document.body.appendChild(flyImg);
+        setTimeout(() => {
+            flyImg.style.left = cartRect.left + 'px';
+            flyImg.style.top = (cartRect.top + window.scrollY) + 'px';
+            flyImg.style.width = '10px'; flyImg.style.height = '10px'; flyImg.style.opacity = '0';
+        }, 10);
+        setTimeout(() => { flyImg.remove(); addToCart(id); }, 800);
+    }
 
     window.addToCart = (id) => {
-        alert("Added to cart! (Cart logic here)");
-    };
+        const product = products.find(p => p.id === id);
+        const selectedSize = document.getElementById(`size-${id}`).value;
+        const selectedQty = parseInt(document.getElementById(`qty-val-${id}`).innerText);
+        cart.push({...product, size: selectedSize, qty: selectedQty});
+        updateCart();
+    }
+
+    window.updateCart = () => {
+        localStorage.setItem('keematCart', JSON.stringify(cart));
+        document.getElementById('cartCount').innerText = cart.length;
+    }
+
+    window.openCart = () => {
+        let total = 0;
+        document.getElementById('cartItems').innerHTML = cart.map((item, index) => {
+            total += (item.price * item.qty);
+            return `<div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.9rem; border-bottom:1px solid #eee; padding-bottom:5px;">
+                <span>${item.name} (${item.size}) x${item.qty}</span>
+                <span>GHS ${item.price * item.qty}</span>
+            </div>`;
+        }).join('');
+        document.getElementById('cartModal').style.display = 'block';
+    }
+
+    window.clearCart = () => { cart = []; updateCart(); openCart(); }
+    
+    window.processOrder = () => {
+        const name = document.getElementById('cName').value;
+        const phone = document.getElementById('cPhone').value;
+        const loc = document.getElementById('cLoc').value;
+        if(!name || !phone || cart.length === 0) return alert("Please fill details and add items!");
+
+        let message = `*NEW ORDER FROM KEEMAT'S COLLECTION*%0A%0A`;
+        message += `*Name:* ${name}%0A*Phone:* ${phone}%0A*Location:* ${loc}%0A%0A*Items:*%0A`;
+        let total = 0;
+        cart.forEach(item => {
+            message += `- ${item.name} (${item.size}) x${item.qty}: GHS ${item.price * item.qty}%0A`;
+            total += (item.price * item.qty);
+        });
+        message += `%0A*TOTAL:* GHS ${total}`;
+        
+        window.open(`https://wa.me/233XXXXXXXXX?text=${message}`); // REPLACED WITH YOUR NUMBER
+        clearCart();
+        document.getElementById('cartModal').style.display = 'none';
+    }
+
+    updateCart();
 </script>
 </body>
 </html>
