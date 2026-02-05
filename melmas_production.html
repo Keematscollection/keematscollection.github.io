@@ -3,38 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Keemat Inventory</title>
+    <title>Keemat Inventory | Professional</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
-        .header { background: black; color: white; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .form { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-save { background: black; color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .item { background: white; padding: 10px; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+        :root { --gold: #d4af37; --bg: #0f0f0f; --card: #1a1a1a; --text: #ffffff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 30px; }
+        .header h2 { letter-spacing: 2px; font-weight: 300; }
+        .back-btn { text-decoration: none; color: var(--gold); border: 1px solid var(--gold); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; transition: 0.3s; }
+        .back-btn:hover { background: var(--gold); color: black; }
+
+        /* Artistic Form */
+        .glass-card { background: var(--card); border-radius: 24px; padding: 30px; border: 1px solid #333; box-shadow: 0 20px 40px rgba(0,0,0,0.4); max-width: 600px; margin: 0 auto 40px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+        
+        label { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; display: block; }
+        input, textarea { background: #252525; border: 1px solid #333; color: white; padding: 12px; border-radius: 12px; width: 100%; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        
+        .btn-main { background: var(--gold); color: black; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: 900; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
+
+        /* Product List Style */
+        .inventory-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+        .item-card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #333; position: relative; }
+        .item-img { width: 100%; height: 120px; object-fit: cover; opacity: 0.8; }
+        .item-info { padding: 10px; font-size: 0.8rem; }
+        .item-actions { display: flex; justify-content: space-between; padding: 10px; border-top: 1px solid #333; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1rem; }
+        .edit-btn { color: var(--gold); }
+        .del-btn { color: #ff4d4d; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <strong>INVENTORY MANAGER</strong>
-    <button onclick="window.location.href='melmas_order.html'" style="background:#333; color:white; border:none; padding:8px; border-radius:5px;">← Back</button>
+    <h2><i class="fas fa-boxes"></i> INVENTORY</h2>
+    <a href="melmas_order.html" class="back-btn">RETURN TO ORDERS</a>
 </div>
 
-<div class="form">
-    <h3 style="margin-top:0;">Add New Product</h3>
-    <input type="text" id="pImg" placeholder="Image URL">
-    <input type="text" id="pName" placeholder="Product Name">
-    <input type="number" id="pPrice" placeholder="Price (GHS)">
-    <input type="number" id="pStock" placeholder="Stock Quantity">
-    <input type="text" id="pSize" placeholder="Sizes (e.g. S, M, L, XL)">
-    <button class="btn-save" onclick="saveProduct()">SAVE TO SHOP</button>
+<div class="glass-card">
+    <h3 id="formTitle" style="margin-top:0; color:var(--gold);">ADD NEW ARTPIECE</h3>
+    <input type="hidden" id="editId">
+    
+    <div class="form-grid">
+        <div class="full-width">
+            <label>Direct Image URL</label>
+            <input type="text" id="pImg" placeholder="Paste PostImg Direct Link">
+        </div>
+        <div class="full-width">
+            <label>Item Name</label>
+            <input type="text" id="pName" placeholder="e.g. Premium Vintage Shirt">
+        </div>
+        <div>
+            <label>Price (GHS)</label>
+            <input type="number" id="pPrice" placeholder="0.00">
+        </div>
+        <div>
+            <label>Stock Count</label>
+            <input type="number" id="pStock" placeholder="Qty">
+        </div>
+        <div class="full-width">
+            <label>Available Sizes</label>
+            <input type="text" id="pSize" placeholder="S, M, L, XL">
+        </div>
+    </div>
+    
+    <button class="btn-main" id="saveBtn" onclick="handleSave()">Sync to Storefront</button>
+    <button id="cancelBtn" onclick="resetForm()" style="display:none; background:none; color:#888; border:none; width:100%; margin-top:10px; cursor:pointer;">Cancel Edit</button>
 </div>
 
-<div id="itemList"></div>
+<h3 style="text-align:center; color:#888; font-weight:300; letter-spacing:2px;">LIVE COLLECTION</h3>
+<div class="inventory-list" id="inventoryList"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, push, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
@@ -49,8 +94,11 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const productsRef = ref(db, 'products');
 
-    window.saveProduct = () => {
+    // 1. ADD or UPDATE Product
+    window.handleSave = () => {
+        const id = document.getElementById('editId').value;
         const data = {
             image: document.getElementById('pImg').value,
             name: document.getElementById('pName').value,
@@ -58,22 +106,82 @@
             stock: parseInt(document.getElementById('pStock').value),
             size: document.getElementById('pSize').value
         };
-        push(ref(db, 'products'), data).then(() => { alert("Product Added!"); location.reload(); });
+
+        if(id) {
+            update(ref(db, `products/${id}`), data).then(() => {
+                alert("Product Updated!");
+                resetForm();
+            });
+        } else {
+            push(productsRef, data).then(() => {
+                alert("Product Added to Shop!");
+                resetForm();
+            });
+        }
     }
 
-    onValue(ref(db, 'products'), (snapshot) => {
+    // 2. FETCH Products for Management
+    onValue(productsRef, (snapshot) => {
         const data = snapshot.val();
-        let html = "";
-        if(data) Object.keys(data).forEach(key => {
-            html += `<div class="item">
-                <span>${data[key].name} (Stock: ${data[key].stock})</span>
-                <button onclick="delP('${key}')" style="background:red; color:white; border:none; padding:5px; border-radius:5px;">Del</button>
-            </div>`;
-        });
-        document.getElementById('itemList').innerHTML = html;
+        const list = document.getElementById('inventoryList');
+        list.innerHTML = "";
+        if(data) {
+            Object.keys(data).forEach(key => {
+                const p = data[key];
+                list.innerHTML += `
+                    <div class="item-card">
+                        <img src="${p.image}" class="item-img">
+                        <div class="item-info">
+                            <strong>${p.name}</strong><br>
+                            <span style="color:var(--gold)">GHS ${p.price}</span>
+                        </div>
+                        <div class="item-actions">
+                            <button class="action-btn edit-btn" onclick="startEdit('${key}', '${p.name}', '${p.image}', ${p.price}, ${p.stock}, '${p.size}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn del-btn" onclick="deleteItem('${key}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
     });
 
-    window.delP = (id) => { if(confirm("Delete this?")) remove(ref(db, `products/${id}`)); }
+    // 3. EDIT Logic
+    window.startEdit = (id, name, img, price, stock, size) => {
+        document.getElementById('editId').value = id;
+        document.getElementById('pName').value = name;
+        document.getElementById('pImg').value = img;
+        document.getElementById('pPrice').value = price;
+        document.getElementById('pStock').value = stock;
+        document.getElementById('pSize').value = size;
+        
+        document.getElementById('formTitle').innerText = "EDIT PRODUCT";
+        document.getElementById('saveBtn').innerText = "Update Product";
+        document.getElementById('cancelBtn').style.display = "block";
+        window.scrollTo(0,0);
+    }
+
+    // 4. DELETE Logic
+    window.deleteItem = (id) => {
+        if(confirm("Permanently remove this item from the store?")) {
+            remove(ref(db, `products/${id}`));
+        }
+    }
+
+    window.resetForm = () => {
+        document.getElementById('editId').value = "";
+        document.getElementById('pImg').value = "";
+        document.getElementById('pName').value = "";
+        document.getElementById('pPrice').value = "";
+        document.getElementById('pStock').value = "";
+        document.getElementById('pSize').value = "";
+        document.getElementById('formTitle').innerText = "ADD NEW ARTPIECE";
+        document.getElementById('saveBtn').innerText = "Sync to Storefront";
+        document.getElementById('cancelBtn').style.display = "none";
+    }
 </script>
 </body>
 </html>
