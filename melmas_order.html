@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keemat Admin Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=1.0.1">
     <style>
         :root { --bg: #f3f4f6; --dark: #111827; --gold: #d4af37; --green: #059669; --red: #dc2626; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
@@ -17,7 +17,7 @@
         
         /* Navigation Buttons */
         .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .btn-nav { padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: transform 0.2s; font-size: 0.9rem; }
+        .btn-nav { padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: transform 0.2s; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-inventory { background: var(--gold); color: black; }
         .btn-refresh { background: white; color: black; border: 1px solid #ddd; }
         .btn-nav:active { transform: scale(0.98); }
@@ -56,9 +56,9 @@
 </div>
 
 <div class="nav-grid">
-    <button class="btn-nav btn-inventory" onclick="window.location.href='melmas_production.html'">
+    <a href="melmas_production.html?v=1.0.1" class="btn-nav btn-inventory">
         <i class="fas fa-box"></i> GO TO INVENTORY
-    </button>
+    </a>
     <button class="btn-nav btn-refresh" onclick="location.reload()">
         <i class="fas fa-sync"></i> REFRESH
     </button>
@@ -68,8 +68,9 @@
 <div id="ordersList"></div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    // VERSION HACK APPLIED TO FIREBASE IMPORTS
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js?v=1.0.1";
+    import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js?v=1.0.1";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
@@ -85,7 +86,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Load Orders
     onValue(ref(db, 'orders'), (snapshot) => {
         const data = snapshot.val();
         let totalRevenue = 0;
@@ -93,25 +93,20 @@
         let html = "";
 
         if (data) {
-            // Convert object to array and reverse to show newest first
             const orders = Object.entries(data).map(([key, value]) => ({ key, ...value })).reverse();
             
             orders.forEach(o => {
                 const isPaid = o.status === 'paid';
-                
-                // Calculate Revenue (Only count if PAID)
                 if (isPaid) {
                     totalRevenue += parseFloat(o.totalAmount || 0);
                     paidCount++;
                 }
 
-                // Generate Product List Text
                 let productList = "No items";
                 if(o.products && Array.isArray(o.products)) {
                     productList = o.products.map(p => `• ${p.name} (${p.size}) x${p.qty}`).join('<br>');
                 }
 
-                // Render Card
                 html += `
                 <div class="order-card ${isPaid ? 'paid' : 'pending'}">
                     <div class="order-header">
@@ -156,7 +151,6 @@
         document.getElementById('orderCount').innerText = paidCount;
     });
 
-    // Make functions available globally
     window.verifyOrder = (key) => {
         if(confirm("Confirm that you have received payment for this order?")) {
             update(ref(db, `orders/${key}`), { status: 'paid' });
