@@ -6,54 +6,64 @@
     <title>Keemat's Collection</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #000; --accent: #d4af37; --bg: #f4f4f4; }
+        :root { --primary: #000; --accent: #d4af37; --bg: #f4f4f4; --white: #ffffff; }
         body { font-family: sans-serif; margin: 0; padding: 0; background: var(--bg); padding-bottom: 60px; }
         
-        /* Header */
-        header { background: var(--primary); color: white; padding: 20px; text-align: center; position: relative; }
+        /* Header & Cart Position */
+        header { background: var(--primary); color: white; padding: 25px 20px; text-align: center; position: relative; }
         h1 { margin: 0; font-size: 1.5rem; letter-spacing: 2px; }
         .slogan { color: var(--accent); font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
         
-        /* --- CHANGE MADE HERE: Reduced max-width from 300px to 220px --- */
-        .header-img { width: 100%; max-width: 220px; margin-top: 10px; border-radius: 8px; }
+        /* Reduced Image Size */
+        .header-img { width: 100%; max-width: 150px; margin-top: 12px; border-radius: 8px; border: 1px solid var(--accent); }
         
-        /* Cart Icon */
-        .cart-icon { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--accent); }
-        .cart-count { position: absolute; top: -8px; right: -8px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; }
+        /* Cart Moved Down */
+        .cart-icon { position: absolute; top: 45px; right: 20px; font-size: 1.6rem; cursor: pointer; color: var(--accent); transition: transform 0.2s; }
+        .cart-icon:active { transform: scale(1.2); }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: #e74c3c; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.75rem; font-weight: bold; }
 
         /* Search */
         .search-container { padding: 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 20px; box-sizing: border-box; outline: none; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box; outline: none; font-size: 1rem; }
 
-        /* Products Grid */
+        /* Products */
         .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .product-card { background: white; border-radius: 10px; overflow: hidden; padding-bottom: 10px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; padding-bottom: 10px; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .product-img { width: 100%; height: 180px; object-fit: cover; }
         .p-details { padding: 10px; }
-        .p-name { font-weight: bold; margin-bottom: 5px; font-size: 0.95rem; }
-        .p-price { color: var(--accent); font-weight: bold; }
-        .p-stock { font-size: 0.8rem; color: #666; }
-        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 8px; margin-top: 5px; cursor: pointer; border-radius: 5px; }
-        
-        /* Out of Stock Overlay */
-        .out-of-stock { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; font-weight: bold; color: red; transform: rotate(-15deg); font-size: 1.5rem; border: 2px solid red; z-index: 5; }
+        .p-name { font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; height: 35px; overflow: hidden; }
+        .p-price { color: var(--accent); font-weight: bold; font-size: 1rem; }
+        .p-stock { font-size: 0.75rem; color: #777; margin: 4px 0; }
+        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 10px; margin-top: 5px; cursor: pointer; border-radius: 6px; font-weight: bold; }
+        .out-of-stock { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; font-weight: 900; color: #d63031; transform: rotate(-10deg); font-size: 1.2rem; border: 3px solid #d63031; z-index: 5; pointer-events: none; }
 
         /* Floating WhatsApp */
-        .whatsapp-float { position: fixed; bottom: 80px; left: 20px; background: #25D366; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); z-index: 99; text-decoration: none;}
+        .whatsapp-float { position: fixed; bottom: 80px; left: 20px; background: #25D366; color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 99; text-decoration: none;}
 
-        /* Cart Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto; }
-        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 90%; border-radius: 10px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
-        .checkout-form input, .checkout-form select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; }
-        .total-box { background: #f9f9f9; padding: 15px; margin-top: 15px; border-radius: 5px; }
-        .copy-btn { background: #eee; border: 1px solid #ccc; padding: 2px 5px; font-size: 0.8rem; cursor: pointer; }
+        /* Colourful Checkout Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; overflow-y: auto; }
+        .modal-content { background: #fff; margin: 5% auto; width: 92%; border-radius: 15px; overflow: hidden; animation: slideIn 0.3s ease-out; }
+        .modal-header { background: var(--primary); color: var(--accent); padding: 15px; text-align: center; border-bottom: 3px solid var(--accent); }
+        .modal-body { padding: 20px; }
+        @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 12px 0; }
+        .checkout-form input { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #f1f1f1; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s; }
+        .checkout-form input:focus { border-color: var(--accent); outline: none; }
+        
+        .total-box { background: #fff9e6; border: 1px dashed var(--accent); padding: 15px; margin: 15px 0; border-radius: 10px; text-align: center; }
+        .total-box h3 { margin: 0; color: #b8860b; }
+        
+        .momo-box { background: linear-gradient(135deg, #ffcc00, #ffdb4d); padding: 15px; border-radius: 10px; margin: 15px 0; color: #000; font-weight: bold; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .copy-btn { background: #000; color: #fff; border: none; padding: 5px 12px; border-radius: 5px; font-size: 0.8rem; margin-left: 10px; }
+
+        .btn-confirm { background: #25D366; color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
         /* Animation */
-        .flying-img { position: fixed; width: 50px; height: 50px; border-radius: 50%; z-index: 9999; transition: all 0.8s ease-in-out; object-fit: cover; pointer-events: none; }
+        .flying-img { position: fixed; width: 50px; height: 50px; border-radius: 50%; z-index: 9999; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); object-fit: cover; pointer-events: none; border: 2px solid var(--accent); }
 
-        footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #666; }
-        .back-to-top { display: block; margin-top: 10px; color: var(--accent); text-decoration: none; }
+        footer { text-align: center; padding: 30px 20px; background: #fff; margin-top: 20px; color: #666; }
+        .back-to-top { display: inline-block; margin-top: 15px; color: var(--accent); font-weight: bold; text-decoration: none; border: 1px solid var(--accent); padding: 5px 15px; border-radius: 20px; }
     </style>
 </head>
 <body>
@@ -62,7 +72,6 @@
     <h1>KEEMAT'S COLLECTION</h1>
     <div class="slogan">Quality and Affordability</div>
     <img src="https://i.postimg.cc/gJ3Vghv1/1770284170262.png" class="header-img" alt="Banner">
-    
     <div class="cart-icon" onclick="openCart()">
         <i class="fas fa-shopping-bag"></i>
         <span class="cart-count" id="cartCount">0</span>
@@ -70,55 +79,57 @@
 </header>
 
 <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search for outfits..." onkeyup="filterProducts()">
+    <input type="text" id="searchInput" placeholder="Search our collection..." onkeyup="filterProducts()">
 </div>
 
-<div class="product-grid" id="productContainer">
-    </div>
+<div class="product-grid" id="productContainer"></div>
 
 <a href="https://wa.me/233554011014" class="whatsapp-float"><i class="fab fa-whatsapp"></i></a>
 
 <footer>
     <h3>About Us</h3>
-    <p>We provide the best quality fashion at prices that fit your pocket.</p>
+    <p>Providing premium quality fashion at affordable prices. Your satisfaction is our priority.</p>
     <a href="#" class="back-to-top">Back to Top</a>
 </footer>
 
 <div id="cartModal" class="modal">
     <div class="modal-content">
-        <h2>Your Cart <span style="float:right; font-size:0.8rem; color:red; cursor:pointer" onclick="clearCart()">Clear All</span></h2>
-        <div id="cartItems"></div>
-        
-        <div class="total-box">
-            <h3>Total: GHS <span id="cartTotal">0</span></h3>
-            <p style="font-size: 0.8rem; color: #666;">Delivery: 20 GHS (Tamale)</p>
+        <div class="modal-header">
+            <h2 style="margin:0">CHECKOUT</h2>
         </div>
-
-        <h3>Checkout Details</h3>
-        <div class="checkout-form">
-            <input type="text" id="cName" placeholder="Full Name" required>
-            <input type="tel" id="cPhone" placeholder="Contact Number" required>
-            <input type="text" id="cLoc" placeholder="Location" required>
+        <div class="modal-body">
+            <div id="cartItems"></div>
             
-            <div style="background: #eef; padding: 10px; border-radius: 5px; margin: 10px 0;">
-                <strong>Payment (Momo):</strong><br>
-                Rasheed Hikmatu<br>
-                <span id="momoNumber">0554011014</span> 
-                <button class="copy-btn" onclick="copyMomo()">Copy</button>
-                <p style="font-size:0.7rem; margin-top:5px;">Please make payment before confirming. Delivery outside Tamale discussed after payment.</p>
+            <div class="total-box">
+                <h3>Total: GHS <span id="cartTotal">0</span></h3>
+                <small>+ GHS 20.00 Delivery (Tamale)</small>
             </div>
 
-            <button class="btn-add" onclick="processOrder()">CONFIRM ORDER</button>
-            <button onclick="document.getElementById('cartModal').style.display='none'" style="width:100%; margin-top:10px; padding:10px; background:#ddd; border:none; border-radius:5px;">Close</button>
+            <div class="checkout-form">
+                <input type="text" id="cName" placeholder="Recipient Name" required>
+                <input type="tel" id="cPhone" placeholder="Phone Number" required>
+                <input type="text" id="cLoc" placeholder="Delivery Location" required>
+                
+                <div class="momo-box">
+                    <i class="fas fa-mobile-alt"></i> MTN MOMO PAYMENT<br>
+                    <span style="font-size:0.8rem; color:#444">Name: Rasheed Hikmatu</span><br>
+                    <span id="momoNumber" style="font-size:1.2rem">0554011014</span> 
+                    <button class="copy-btn" onclick="copyMomo()">COPY</button>
+                </div>
+
+                <button class="btn-confirm" onclick="processOrder()">
+                    <i class="fab fa-whatsapp"></i> SEND VIA WHATSAPP
+                </button>
+                <button onclick="document.getElementById('cartModal').style.display='none'" style="width:100%; margin-top:15px; padding:10px; background:none; border:none; color:#888; font-weight:bold;">Cancel & Continue Shopping</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
-    // --- PROVIDED FIREBASE CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
       authDomain: "keematscollection.firebaseapp.com",
@@ -136,18 +147,11 @@
     let products = [];
     let cart = JSON.parse(localStorage.getItem('keematCart')) || [];
 
-    // Load Products
-    const productRef = ref(db, 'products');
-    onValue(productRef, (snapshot) => {
+    onValue(ref(db, 'products'), (snapshot) => {
         const data = snapshot.val();
         products = [];
-        const container = document.getElementById('productContainer');
-        container.innerHTML = '';
-
         if (data) {
-            Object.keys(data).forEach(key => {
-                products.push({id: key, ...data[key]});
-            });
+            Object.keys(data).forEach(key => { products.push({id: key, ...data[key]}); });
             renderProducts(products);
         }
     });
@@ -161,9 +165,9 @@
                 <div class="p-details">
                     <div class="p-name">${p.name}</div>
                     <div class="p-price">GHS ${p.price}</div>
-                    <div class="p-stock">Size: ${p.size} | Stock: ${p.stock}</div>
+                    <div class="p-stock">Size: ${p.size}</div>
                     ${p.stock > 0 ? `
-                        <select id="qty-${p.id}" style="width:100%; margin-bottom:5px;">
+                        <select id="qty-${p.id}" style="width:100%; margin: 5px 0; padding:5px; border-radius:4px;">
                             ${[1,2,3,4,5].map(n => `<option value="${n}">${n}</option>`).join('')}
                         </select>
                         <button class="btn-add" onclick="addToCart('${p.id}')">ADD TO CART</button>
@@ -173,48 +177,32 @@
         `).join('');
     }
 
-    window.filterProducts = () => {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-        renderProducts(filtered);
-    }
-
     window.addToCart = (id) => {
         const product = products.find(p => p.id === id);
         const qty = parseInt(document.getElementById(`qty-${id}`).value);
-        
-        // Flying Animation
         const img = document.getElementById(`img-${id}`);
         const cartIcon = document.querySelector('.cart-icon');
+        
         if(img && cartIcon) {
             const flyImg = img.cloneNode();
             flyImg.classList.add('flying-img');
-            
             const rect = img.getBoundingClientRect();
             const cartRect = cartIcon.getBoundingClientRect();
-            
             flyImg.style.left = rect.left + 'px';
             flyImg.style.top = rect.top + 'px';
             document.body.appendChild(flyImg);
-            
             setTimeout(() => {
-                flyImg.style.left = cartRect.left + 'px';
-                flyImg.style.top = cartRect.top + 'px';
-                flyImg.style.width = '10px';
-                flyImg.style.height = '10px';
-                flyImg.style.opacity = '0';
-            }, 10);
-            
+                flyImg.style.left = (cartRect.left + 5) + 'px';
+                flyImg.style.top = (cartRect.top + 5) + 'px';
+                flyImg.style.width = '15px';
+                flyImg.style.height = '15px';
+                flyImg.style.opacity = '0.5';
+            }, 50);
             setTimeout(() => flyImg.remove(), 800);
         }
 
-        // Add Logic
         const existing = cart.find(c => c.id === id);
-        if(existing) {
-            existing.qty += qty;
-        } else {
-            cart.push({...product, qty: qty});
-        }
+        if(existing) { existing.qty += qty; } else { cart.push({...product, qty: qty}); }
         updateCart();
     }
 
@@ -224,90 +212,49 @@
     }
 
     window.openCart = () => {
-        const modal = document.getElementById('cartModal');
         const list = document.getElementById('cartItems');
         let total = 0;
-        
-        list.innerHTML = cart.map((item, index) => {
-            const sub = item.price * item.qty;
-            total += sub;
-            return `
-                <div class="cart-item">
-                    <div style="flex:1">
-                        <strong>${item.name}</strong> (${item.size}) x${item.qty}
-                    </div>
-                    <div style="text-align:right">
-                        GHS ${sub}
-                        <i class="fas fa-trash" style="color:red; cursor:pointer; margin-left:10px;" onclick="removeItem(${index})"></i>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        
+        if(cart.length === 0) {
+            list.innerHTML = "<p style='text-align:center; color:#888;'>Your cart is empty.</p>";
+        } else {
+            list.innerHTML = cart.map((item, index) => {
+                const sub = item.price * item.qty;
+                total += sub;
+                return `<div class="cart-item">
+                    <div style="flex:1"><strong>${item.name}</strong> (${item.size}) <br> <span style="color:#888">GHS ${item.price} x ${item.qty}</span></div>
+                    <div style="text-align:right; font-weight:bold;">GHS ${sub} <i class="fas fa-times-circle" style="color:#ff7675; margin-left:10px; cursor:pointer" onclick="removeItem(${index})"></i></div>
+                </div>`;
+            }).join('');
+        }
         document.getElementById('cartTotal').innerText = total;
-        modal.style.display = 'block';
+        document.getElementById('cartModal').style.display = 'block';
     }
 
-    window.removeItem = (index) => {
-        cart.splice(index, 1);
-        updateCart();
-        openCart();
-    }
-
-    window.clearCart = () => {
-        cart = [];
-        updateCart();
-        openCart();
-    }
-
-    window.copyMomo = () => {
-        navigator.clipboard.writeText("0554011014");
-        alert("Number copied!");
-    }
+    window.removeItem = (index) => { cart.splice(index, 1); updateCart(); openCart(); }
+    window.copyMomo = () => { navigator.clipboard.writeText("0554011014"); alert("Momo Number Copied!"); }
 
     window.processOrder = () => {
         const name = document.getElementById('cName').value;
         const phone = document.getElementById('cPhone').value;
         const loc = document.getElementById('cLoc').value;
+        if(!name || !phone || !loc || cart.length === 0) { alert("Please fill all details and ensure cart isn't empty."); return; }
         
-        if(!name || !phone || !loc) { alert("Please fill all details"); return; }
-        if(cart.length === 0) { alert("Cart is empty"); return; }
-
         const orderId = 'KC-' + Math.floor(100000 + Math.random() * 900000);
-        let subtotal = 0;
-        let itemString = "";
-        
-        cart.forEach(c => {
-            subtotal += (c.price * c.qty);
-            itemString += `${c.name} (${c.size}) x${c.qty}, `;
-        });
+        let subtotal = 0; let itemString = "";
+        cart.forEach(c => { subtotal += (c.price * c.qty); itemString += `${c.name}(${c.size})x${c.qty}, `; });
+        const total = subtotal + 20;
 
-        const total = subtotal + 20; // + delivery
-
-        const orderData = {
-            orderId: orderId,
-            customerName: name,
-            contact: phone,
-            location: loc,
-            products: cart,
-            totalAmount: total,
-            timestamp: serverTimestamp()
-        };
-
-        // Save to Firebase
-        push(ref(db, 'orders'), orderData).then(() => {
-            // Build WhatsApp Message
-            const msg = `*NEW ORDER: ${orderId}*%0AName: ${name}%0AContact: ${phone}%0ALocation: ${loc}%0AItems: ${itemString}%0ATotal: GHS ${total} (w/ Delivery)%0A%0A*Please find attached screenshot of payment.*`;
-            
-            // Clear cart and redirect
-            cart = [];
-            updateCart();
+        push(ref(db, 'orders'), { orderId, customerName: name, contact: phone, location: loc, products: cart, totalAmount: total, timestamp: serverTimestamp() }).then(() => {
+            const msg = `*NEW ORDER: ${orderId}*%0A*Name:* ${name}%0A*Contact:* ${phone}%0A*Location:* ${loc}%0A*Items:* ${itemString}%0A*Total:* GHS ${total}%0A%0A_Attached is my payment proof._`;
+            cart = []; updateCart();
             window.location.href = `https://wa.me/233554011014?text=${msg}`;
         });
     }
 
-    // Init
-    updateCart();
+    window.filterProducts = () => {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        renderProducts(products.filter(p => p.name.toLowerCase().includes(query)));
+    }
 </script>
 </body>
 </html>
