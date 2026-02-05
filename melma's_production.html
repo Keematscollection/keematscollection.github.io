@@ -8,21 +8,41 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .edit-mode { border: 2px solid #f59e0b !important; background-color: #fffbeb; }
+        #auth-overlay { backdrop-filter: blur(8px); display: none; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-20">
 
+    <div id="auth-overlay" class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="bg-black text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-lock text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-black uppercase tracking-tight">Admin Access</h2>
+                <p class="text-gray-400 text-sm">Sign in to manage Keemat's Collection</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <input type="email" id="login-email" placeholder="Email Address" required class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition">
+                <input type="password" id="login-password" placeholder="Password" required class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition">
+                <button type="submit" class="w-full bg-black text-white py-4 rounded-2xl font-bold hover:bg-zinc-800 transition">SIGN IN</button>
+            </form>
+        </div>
+    </div>
+
     <nav class="bg-black text-white p-6 shadow-xl sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold tracking-widest uppercase">Inventory Manager</h1>
-            <a href="melma's_order.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
-                <i class="fas fa-arrow-left mr-2"></i> Orders
-            </a>
+            <div class="flex items-center gap-4">
+                <button id="logout-btn" class="text-xs text-gray-400 hover:text-white uppercase font-bold tracking-widest">Logout</button>
+                <a href="melma's_order.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
+                    <i class="fas fa-arrow-left mr-2"></i> Orders
+                </a>
+            </div>
         </div>
     </nav>
 
     <div class="container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
         <div class="lg:col-span-1">
             <div id="form-container" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-28">
                 <h2 id="form-title" class="text-lg font-bold mb-6 flex items-center gap-2">
@@ -31,17 +51,14 @@
                 
                 <form id="product-form" class="space-y-4">
                     <input type="hidden" id="edit-doc-id">
-                    
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Image URL</label>
                         <input type="url" id="p-image-url" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
                     </div>
-
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Item Name</label>
                         <input type="text" id="p-name" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
                     </div>
-
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Price (GHS)</label>
@@ -52,24 +69,17 @@
                             <input type="number" id="p-stock" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Sizes (e.g. S, M, L, XL)</label>
                         <input type="text" id="p-sizes" placeholder="Separate with commas" class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
                     </div>
-
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Description</label>
                         <textarea id="p-desc" rows="3" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm"></textarea>
                     </div>
-
                     <div class="flex gap-2 pt-2">
-                        <button type="submit" id="submit-btn" class="flex-1 bg-black text-white py-3 rounded-xl font-bold hover:bg-zinc-800 transition">
-                            SAVE PRODUCT
-                        </button>
-                        <button type="button" id="cancel-edit" class="hidden bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold" onclick="resetForm()">
-                            CANCEL
-                        </button>
+                        <button type="submit" id="submit-btn" class="flex-1 bg-black text-white py-3 rounded-xl font-bold hover:bg-zinc-800 transition">SAVE PRODUCT</button>
+                        <button type="button" id="cancel-edit" class="hidden bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold" onclick="resetForm()">CANCEL</button>
                     </div>
                 </form>
             </div>
@@ -77,14 +87,14 @@
 
         <div class="lg:col-span-2">
             <h2 class="text-xl font-bold mb-6">Current Inventory</h2>
-            <div id="inventory-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                </div>
+            <div id="inventory-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
@@ -97,40 +107,64 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         const form = document.getElementById('product-form');
         const listContainer = document.getElementById('inventory-list');
         const submitBtn = document.getElementById('submit-btn');
+        const authOverlay = document.getElementById('auth-overlay');
 
-        // LOAD PRODUCTS
+        // AUTHENTICATION GUARD
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                authOverlay.style.display = 'none';
+                fetchProducts();
+            } else {
+                authOverlay.style.display = 'flex';
+                listContainer.innerHTML = "";
+            }
+        });
+
+        // LOGIN HANDLER
+        document.getElementById('login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) { alert("Invalid credentials: " + err.message); }
+        };
+
+        // LOGOUT HANDLER
+        document.getElementById('logout-btn').onclick = () => signOut(auth);
+
         async function fetchProducts() {
-            listContainer.innerHTML = `<div class="p-10 text-gray-400">Loading products...</div>`;
-            const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
-            const querySnapshot = await getDocs(q);
-            listContainer.innerHTML = "";
-
-            querySnapshot.forEach((docSnap) => {
-                const p = docSnap.data();
-                const id = docSnap.id;
-                
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-4";
-                card.innerHTML = `
-                    <img src="${p.imageUrl}" class="w-20 h-20 object-cover rounded-lg bg-gray-50">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-gray-900">${p.name}</h4>
-                        <p class="text-xs text-gray-400 mb-2">GHS ${p.price} | Stock: ${p.stock}</p>
-                        <div class="flex gap-2">
-                            <button onclick="window.startEdit('${id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="text-[10px] font-bold bg-amber-50 text-amber-600 px-3 py-1 rounded-md uppercase">Edit</button>
-                            <button onclick="window.deleteProduct('${id}')" class="text-[10px] font-bold bg-red-50 text-red-600 px-3 py-1 rounded-md uppercase">Delete</button>
+            listContainer.innerHTML = `<div class="p-10 text-gray-400">Loading inventory...</div>`;
+            try {
+                const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
+                listContainer.innerHTML = "";
+                querySnapshot.forEach((docSnap) => {
+                    const p = docSnap.data();
+                    const id = docSnap.id;
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-4";
+                    card.innerHTML = `
+                        <img src="${p.imageUrl}" class="w-20 h-20 object-cover rounded-lg bg-gray-50">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-900">${p.name}</h4>
+                            <p class="text-xs text-gray-400 mb-2">GHS ${p.price} | Stock: ${p.stock}</p>
+                            <div class="flex gap-2">
+                                <button onclick="window.startEdit('${id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="text-[10px] font-bold bg-amber-50 text-amber-600 px-3 py-1 rounded-md uppercase">Edit</button>
+                                <button onclick="window.deleteProduct('${id}')" class="text-[10px] font-bold bg-red-50 text-red-600 px-3 py-1 rounded-md uppercase">Delete</button>
+                            </div>
                         </div>
-                    </div>
-                `;
-                listContainer.appendChild(card);
-            });
+                    `;
+                    listContainer.appendChild(card);
+                });
+            } catch (err) { console.error(err); }
         }
 
-        // START EDIT MODE
         window.startEdit = (id, data) => {
             document.getElementById('edit-doc-id').value = id;
             document.getElementById('p-image-url').value = data.imageUrl;
@@ -139,7 +173,6 @@
             document.getElementById('p-stock').value = data.stock;
             document.getElementById('p-sizes').value = data.sizes || "";
             document.getElementById('p-desc').value = data.description;
-
             document.getElementById('form-container').classList.add('edit-mode');
             document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-amber-500"></i> Editing: ${data.name}`;
             document.getElementById('cancel-edit').classList.remove('hidden');
@@ -147,7 +180,6 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // RESET FORM
         window.resetForm = () => {
             form.reset();
             document.getElementById('edit-doc-id').value = "";
@@ -157,11 +189,9 @@
             submitBtn.innerText = "SAVE PRODUCT";
         };
 
-        // SAVE OR UPDATE
         form.onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById('edit-doc-id').value;
-            
             const productData = {
                 imageUrl: document.getElementById('p-image-url').value,
                 name: document.getElementById('p-name').value,
@@ -171,7 +201,6 @@
                 description: document.getElementById('p-desc').value,
                 timestamp: serverTimestamp()
             };
-
             try {
                 if (id) {
                     await updateDoc(doc(db, "products", id), productData);
@@ -182,18 +211,17 @@
                 }
                 resetForm();
                 fetchProducts();
-            } catch (err) { alert("Action failed: " + err.message); }
+            } catch (err) { alert("Permission denied: " + err.message); }
         };
 
-        // DELETE PRODUCT
         window.deleteProduct = async (id) => {
             if (confirm("Delete this item permanently?")) {
-                await deleteDoc(doc(db, "products", id));
-                fetchProducts();
+                try {
+                    await deleteDoc(doc(db, "products", id));
+                    fetchProducts();
+                } catch (err) { alert("Delete failed: " + err.message); }
             }
         };
-
-        fetchProducts();
     </script>
 </body>
 </html>
