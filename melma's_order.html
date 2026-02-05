@@ -12,18 +12,48 @@
         .order-card:hover { transform: translateY(-2px); }
         .status-paid { border-left: 6px solid #10b981 !important; background-color: #f0fdf4; }
         .status-pending { border-left: 6px solid #f59e0b !important; }
+        #auth-overlay { backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-20">
+
+    <div id="auth-overlay" class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" style="display: flex;">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="bg-black text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-black uppercase tracking-tight">Admin Access</h2>
+                <p class="text-gray-400 text-sm">Sign in to view orders and revenue</p>
+            </div>
+            
+            <form id="admin-login-form" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Email Address</label>
+                    <input type="email" id="login-email" required class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Security Password</label>
+                    <input type="password" id="login-password" required class="w-full px-5 py-4 rounded-2xl border-2 border-gray-100 focus:border-black outline-none transition">
+                </div>
+                <button type="submit" class="w-full bg-black text-white py-4 rounded-2xl font-bold hover:bg-zinc-800 transition">
+                    VERIFY & ENTER
+                </button>
+            </form>
+        </div>
+    </div>
 
     <div id="admin-main-content">
         <nav class="bg-black text-white p-6 shadow-xl sticky top-0 z-50">
             <div class="container mx-auto">
                 <div class="flex justify-between items-center mb-4">
                     <h1 class="text-xl font-bold tracking-widest uppercase">Keemat's Dashboard</h1>
-                    <button onclick="location.reload()" class="bg-yellow-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-500 transition">
-                        <i class="fas fa-sync-alt mr-2"></i> REFRESH
-                    </button>
+                    <div class="flex gap-2">
+                        <button id="btn-logout" class="text-xs text-gray-400 hover:text-white mr-4 uppercase font-bold">Logout</button>
+                        <button onclick="location.reload()" class="bg-yellow-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-yellow-500 transition">
+                            <i class="fas fa-sync-alt mr-2"></i> REFRESH
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-zinc-900 p-4 rounded-xl border border-zinc-800">
@@ -63,174 +93,188 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        // IMPORT AUTH MODULES
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
-        const accessKey = prompt("Please enter the Admin Password to continue:");
+        const firebaseConfig = {
+            apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
+            authDomain: "keematscollection.firebaseapp.com",
+            projectId: "keematscollection",
+            storageBucket: "keematscollection.firebasestorage.app",
+            messagingSenderId: "344751322745",
+            appId: "1:344751322745:web:b57abb74c33056a0b886a8",
+            measurementId: "G-PPS020WTZ2"
+        };
 
-        if (accessKey === "Mnop1233qrstS") {
-            document.getElementById('admin-main-content').style.display = 'block';
-            initAdminApp();
-        } else {
-            alert("Incorrect Password. Access Denied.");
-            window.location.href = "index.html"; 
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        function initAdminApp() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
-                authDomain: "keematscollection.firebaseapp.com",
-                projectId: "keematscollection",
-                storageBucket: "keematscollection.firebasestorage.app",
-                messagingSenderId: "344751322745",
-                appId: "1:344751322745:web:b57abb74c33056a0b886a8",
-                measurementId: "G-PPS020WTZ2"
-            };
+        const authOverlay = document.getElementById('auth-overlay');
+        const adminContent = document.getElementById('admin-main-content');
 
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
+        // --- AUTHENTICATION LOGIC ---
 
-            async function fetchOrders() {
-                const container = document.getElementById('orders-container');
-                const loader = document.getElementById('admin-loader');
-                const monthlyEl = document.getElementById('monthly-revenue');
-                const annualEl = document.getElementById('annual-revenue');
-                const countEl = document.getElementById('order-count');
+        // Watch for Login Status
+        onAuthStateChanged(auth, (user) => {
+            // Check if logged in AND matches your specific Admin UID
+            if (user && user.uid === 'q2LX0nZwGtXMbsW4FKRQztr76eA3') {
+                authOverlay.style.display = 'none';
+                adminContent.style.display = 'block';
+                fetchOrders();
+            } else {
+                authOverlay.style.display = 'flex';
+                adminContent.style.display = 'none';
+                if(user) { alert("Access Denied: You are not an admin."); signOut(auth); }
+            }
+        });
+
+        // Handle Login Submission
+        document.getElementById('admin-login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (err) {
+                alert("Login Failed: " + err.message);
+            }
+        };
+
+        // Logout function
+        document.getElementById('btn-logout').onclick = () => signOut(auth);
+
+
+        // --- DASHBOARD DATA LOGIC ---
+
+        async function fetchOrders() {
+            const container = document.getElementById('orders-container');
+            const loader = document.getElementById('admin-loader');
+            const monthlyEl = document.getElementById('monthly-revenue');
+            const annualEl = document.getElementById('annual-revenue');
+            const countEl = document.getElementById('order-count');
+            
+            try {
+                const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(q);
                 
-                try {
-                    const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
-                    const querySnapshot = await getDocs(q);
+                loader.style.display = 'none';
+                container.innerHTML = "";
+                
+                let monthlyRevenue = 0;
+                let annualRevenue = 0;
+                let totalCount = 0;
+
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+
+                querySnapshot.forEach((orderDoc) => {
+                    const order = orderDoc.data();
+                    const docId = orderDoc.id;
+                    const isPaid = order.status === "Verified Paid";
                     
-                    loader.style.display = 'none';
-                    container.innerHTML = "";
-                    
-                    let monthlyRevenue = 0;
-                    let annualRevenue = 0;
-                    let totalCount = 0;
+                    const orderDate = order.timestamp ? order.timestamp.toDate() : new Date();
+                    const orderMonth = orderDate.getMonth();
+                    const orderYear = orderDate.getFullYear();
+                    const displayDate = orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
-                    const now = new Date();
-                    const currentMonth = now.getMonth();
-                    const currentYear = now.getFullYear();
-
-                    querySnapshot.forEach((orderDoc) => {
-                        const order = orderDoc.data();
-                        const docId = orderDoc.id;
-                        const isPaid = order.status === "Verified Paid";
-                        
-                        // Parse Date
-                        const orderDate = order.timestamp ? order.timestamp.toDate() : new Date();
-                        const orderMonth = orderDate.getMonth();
-                        const orderYear = orderDate.getFullYear();
-                        const displayDate = orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-                        totalCount++;
-                        if(isPaid) {
-                            const amount = parseFloat(order.totalAmount) || 0;
-                            if(orderYear === currentYear) {
-                                annualRevenue += amount;
-                                if(orderMonth === currentMonth) {
-                                    monthlyRevenue += amount;
-                                }
+                    totalCount++;
+                    if(isPaid) {
+                        const amount = parseFloat(order.totalAmount) || 0;
+                        if(orderYear === currentYear) {
+                            annualRevenue += amount;
+                            if(orderMonth === currentMonth) {
+                                monthlyRevenue += amount;
                             }
                         }
+                    }
 
-                        const card = document.createElement('div');
-                        card.className = `order-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 ${isPaid ? 'status-paid' : 'status-pending'}`;
-                        card.dataset.search = `${order.orderId} ${order.customerName} ${order.contact}`.toLowerCase();
+                    const card = document.createElement('div');
+                    card.className = `order-card bg-white p-6 rounded-2xl shadow-sm border border-gray-100 ${isPaid ? 'status-paid' : 'status-pending'}`;
+                    card.dataset.search = `${order.orderId} ${order.customerName} ${order.contact}`.toLowerCase();
 
-                        card.innerHTML = `
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order #${order.orderId}</span>
-                                        <span class="text-[10px] text-zinc-400">• ${displayDate}</span>
-                                    </div>
-                                    <h3 class="text-xl font-bold text-gray-900">${order.customerName}</h3>
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Order #${order.orderId}</span>
+                                    <span class="text-[10px] text-zinc-400">• ${displayDate}</span>
                                 </div>
-                                <span class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase ${isPaid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
-                                    ${isPaid ? '<i class="fas fa-check-circle mr-1"></i> Paid' : '<i class="fas fa-clock mr-1"></i> Pending'}
-                                </span>
+                                <h3 class="text-xl font-bold text-gray-900">${order.customerName}</h3>
                             </div>
-                            
-                            <div class="grid grid-cols-2 gap-y-4 text-sm mb-6">
-                                <div>
-                                    <p class="text-gray-400 text-xs font-medium">Contact</p>
-                                    <p class="font-bold underline text-blue-600">${order.contact}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-400 text-xs font-medium">Total Amount</p>
-                                    <p class="font-bold text-lg">GHS ${order.totalAmount}</p>
-                                </div>
-                                <div class="col-span-2">
-                                    <p class="text-gray-400 text-xs font-medium">Delivery To</p>
-                                    <p class="font-bold text-gray-700">${order.location}</p>
-                                </div>
-                            </div>
+                            <span class="px-3 py-1 rounded-lg text-[10px] font-bold uppercase ${isPaid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}">
+                                ${isPaid ? '<i class="fas fa-check-circle mr-1"></i> Paid' : '<i class="fas fa-clock mr-1"></i> Pending'}
+                            </span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-y-4 text-sm mb-6">
+                            <div><p class="text-gray-400 text-xs font-medium">Contact</p><p class="font-bold underline text-blue-600">${order.contact}</p></div>
+                            <div><p class="text-gray-400 text-xs font-medium">Total Amount</p><p class="font-bold text-lg">GHS ${order.totalAmount}</p></div>
+                            <div class="col-span-2"><p class="text-gray-400 text-xs font-medium">Delivery To</p><p class="font-bold text-gray-700">${order.location}</p></div>
+                        </div>
 
-                            <div class="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-100">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Order Items</p>
-                                <ul class="text-sm space-y-1">
-                                    ${order.items.map(i => `<li class="flex justify-between"><span>${i.name} (x${i.qty})</span> <span class="text-gray-500">GHS ${i.price}</span></li>`).join('')}
-                                </ul>
-                            </div>
+                        <div class="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-100">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Order Items</p>
+                            <ul class="text-sm space-y-1">
+                                ${order.items.map(i => `<li class="flex justify-between"><span>${i.name} (x${i.qty})</span> <span class="text-gray-500">GHS ${i.price}</span></li>`).join('')}
+                            </ul>
+                        </div>
 
-                            <div class="flex gap-3">
-                                ${!isPaid ? `
-                                    <button onclick="window.verifyOrder('${docId}')" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-green-700 transition shadow-lg shadow-green-100">
-                                        CONFIRM PAYMENT
-                                    </button>
-                                ` : `
-                                    <button disabled class="flex-1 bg-gray-100 text-gray-400 py-3 rounded-xl font-bold text-sm cursor-not-allowed">
-                                        VERIFIED
-                                    </button>
-                                `}
-                                <button onclick="window.deleteOrder('${docId}')" class="w-12 h-12 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition">
-                                    <i class="fas fa-trash-alt"></i>
+                        <div class="flex gap-3">
+                            ${!isPaid ? `
+                                <button onclick="window.verifyOrder('${docId}')" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold text-sm hover:bg-green-700 transition shadow-lg shadow-green-100">
+                                    CONFIRM PAYMENT
                                 </button>
-                            </div>
-                        `;
-                        container.appendChild(card);
-                    });
-
-                    // Format numbers with commas for readability
-                    const formatter = new Intl.NumberFormat('en-GH', { minimumFractionDigits: 2 });
-                    monthlyEl.innerText = formatter.format(monthlyRevenue);
-                    annualEl.innerText = formatter.format(annualRevenue);
-                    countEl.innerText = totalCount;
-
-                } catch (err) {
-                    console.error(err);
-                    loader.innerHTML = `<p class="text-red-500 text-center">Connection failed. Check Firestore rules or index.</p>`;
-                }
-            }
-
-            window.verifyOrder = async (docId) => {
-                if(confirm("Mark this order as paid?")) {
-                    try {
-                        const docRef = doc(db, "orders", docId);
-                        await updateDoc(docRef, { status: "Verified Paid" });
-                        fetchOrders();
-                    } catch (e) { alert("Update failed."); }
-                }
-            };
-
-            window.deleteOrder = async (docId) => {
-                if(confirm("Permanently delete this order?")) {
-                    try {
-                        await deleteDoc(doc(db, "orders", docId));
-                        fetchOrders();
-                    } catch (e) { alert("Delete failed."); }
-                }
-            };
-
-            document.getElementById('admin-search').onkeyup = (e) => {
-                const val = e.target.value.toLowerCase();
-                document.querySelectorAll('.order-card').forEach(card => {
-                    card.style.display = card.dataset.search.includes(val) ? 'block' : 'none';
+                            ` : `
+                                <button disabled class="flex-1 bg-gray-100 text-gray-400 py-3 rounded-xl font-bold text-sm cursor-not-allowed">
+                                    VERIFIED
+                                </button>
+                            `}
+                            <button onclick="window.deleteOrder('${docId}')" class="w-12 h-12 flex items-center justify-center bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
                 });
-            };
 
-            fetchOrders();
+                const formatter = new Intl.NumberFormat('en-GH', { minimumFractionDigits: 2 });
+                monthlyEl.innerText = formatter.format(monthlyRevenue);
+                annualEl.innerText = formatter.format(annualRevenue);
+                countEl.innerText = totalCount;
+
+            } catch (err) {
+                console.error(err);
+                loader.innerHTML = `<p class="text-red-500 text-center">Connection failed. Check Firestore rules or index.</p>`;
+            }
         }
+
+        window.verifyOrder = async (docId) => {
+            if(confirm("Mark this order as paid?")) {
+                try {
+                    const docRef = doc(db, "orders", docId);
+                    await updateDoc(docRef, { status: "Verified Paid" });
+                    fetchOrders();
+                } catch (e) { alert("Update failed: " + e.message); }
+            }
+        };
+
+        window.deleteOrder = async (docId) => {
+            if(confirm("Permanently delete this order?")) {
+                try {
+                    await deleteDoc(doc(db, "orders", docId));
+                    fetchOrders();
+                } catch (e) { alert("Delete failed: " + e.message); }
+            }
+        };
+
+        document.getElementById('admin-search').onkeyup = (e) => {
+            const val = e.target.value.toLowerCase();
+            document.querySelectorAll('.order-card').forEach(card => {
+                card.style.display = card.dataset.search.includes(val) ? 'block' : 'none';
+            });
+        };
     </script>
 </body>
 </html>
-
