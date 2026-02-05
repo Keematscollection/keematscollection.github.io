@@ -3,72 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Production | Keemat's Collection</title>
+    <title>Production & Inventory | Keemat's Collection</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .edit-mode { border: 2px solid #f59e0b !important; background-color: #fffbeb; }
+    </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen pb-20">
 
-    <nav class="bg-black text-white p-6 shadow-xl mb-8">
+    <nav class="bg-black text-white p-6 shadow-xl sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-widest uppercase">Add New Stock</h1>
+            <h1 class="text-xl font-bold tracking-widest uppercase">Inventory Manager</h1>
             <a href="melma's_order.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
-                <i class="fas fa-arrow-left mr-2"></i> Dashboard
+                <i class="fas fa-arrow-left mr-2"></i> Orders
             </a>
         </div>
     </nav>
 
-    <div class="container mx-auto p-4 max-w-2xl">
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            <form id="product-form" class="p-8 space-y-5">
+    <div class="container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-1">
+            <div id="form-container" class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sticky top-28">
+                <h2 id="form-title" class="text-lg font-bold mb-6 flex items-center gap-2">
+                    <i class="fas fa-plus-circle text-green-500"></i> Add New Product
+                </h2>
                 
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Image URL (from Postimg)</label>
-                    <input type="url" id="p-image-url" required placeholder="https://postimg.cc/..." 
-                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition">
-                    <div id="preview-box" class="mt-4 hidden border border-gray-100 rounded-xl overflow-hidden bg-gray-50 p-2">
-                         <p class="text-[9px] text-gray-400 uppercase mb-2 text-center">Image Preview</p>
-                         <img id="url-preview" class="mx-auto h-40 object-contain">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Name</label>
-                    <input type="text" id="p-name" required placeholder="e.g. Vintage Graphic Tee" 
-                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
+                <form id="product-form" class="space-y-4">
+                    <input type="hidden" id="edit-doc-id">
+                    
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Price (GHS)</label>
-                        <input type="number" id="p-price" step="0.01" required placeholder="0.00" 
-                               class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Image URL</label>
+                        <input type="url" id="p-image-url" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
                     </div>
+
                     <div>
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Stock Level</label>
-                        <input type="number" id="p-stock" required placeholder="10" 
-                               class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Item Name</label>
+                        <input type="text" id="p-name" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
                     </div>
-                </div>
 
-                <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Description</label>
-                    <textarea id="p-desc" rows="3" required placeholder="Describe the item material, size, and fit..." 
-                              class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition"></textarea>
-                </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Price (GHS)</label>
+                            <input type="number" id="p-price" step="0.01" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Stock</label>
+                            <input type="number" id="p-stock" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
+                        </div>
+                    </div>
 
-                <button type="submit" id="submit-btn" 
-                        class="w-full bg-black text-white py-4 rounded-2xl font-bold hover:bg-zinc-800 transition transform active:scale-95 flex items-center justify-center gap-3">
-                    <span id="btn-text">UPLOAD PRODUCT</span>
-                    <div id="btn-loader" class="hidden animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
-                </button>
-            </form>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Sizes (e.g. S, M, L, XL)</label>
+                        <input type="text" id="p-sizes" placeholder="Separate with commas" class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1">Description</label>
+                        <textarea id="p-desc" rows="3" required class="w-full px-4 py-2 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition text-sm"></textarea>
+                    </div>
+
+                    <div class="flex gap-2 pt-2">
+                        <button type="submit" id="submit-btn" class="flex-1 bg-black text-white py-3 rounded-xl font-bold hover:bg-zinc-800 transition">
+                            SAVE PRODUCT
+                        </button>
+                        <button type="button" id="cancel-edit" class="hidden bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold" onclick="resetForm()">
+                            CANCEL
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2">
+            <h2 class="text-xl font-bold mb-6">Current Inventory</h2>
+            <div id="inventory-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
@@ -82,54 +98,102 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const productForm = document.getElementById('product-form');
+        const form = document.getElementById('product-form');
+        const listContainer = document.getElementById('inventory-list');
         const submitBtn = document.getElementById('submit-btn');
-        const btnText = document.getElementById('btn-text');
-        const btnLoader = document.getElementById('btn-loader');
-        const urlInput = document.getElementById('p-image-url');
-        const previewBox = document.getElementById('preview-box');
-        const urlPreview = document.getElementById('url-preview');
 
-        urlInput.addEventListener('input', (e) => {
-            const val = e.target.value.trim();
-            if (val.startsWith('http')) {
-                urlPreview.src = val;
-                previewBox.classList.remove('hidden');
-            } else {
-                previewBox.classList.add('hidden');
-            }
-        });
+        // LOAD PRODUCTS
+        async function fetchProducts() {
+            listContainer.innerHTML = `<div class="p-10 text-gray-400">Loading products...</div>`;
+            const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+            const querySnapshot = await getDocs(q);
+            listContainer.innerHTML = "";
 
-        productForm.onsubmit = async (e) => {
+            querySnapshot.forEach((docSnap) => {
+                const p = docSnap.data();
+                const id = docSnap.id;
+                
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex gap-4";
+                card.innerHTML = `
+                    <img src="${p.imageUrl}" class="w-20 h-20 object-cover rounded-lg bg-gray-50">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-gray-900">${p.name}</h4>
+                        <p class="text-xs text-gray-400 mb-2">GHS ${p.price} | Stock: ${p.stock}</p>
+                        <div class="flex gap-2">
+                            <button onclick="window.startEdit('${id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})" class="text-[10px] font-bold bg-amber-50 text-amber-600 px-3 py-1 rounded-md uppercase">Edit</button>
+                            <button onclick="window.deleteProduct('${id}')" class="text-[10px] font-bold bg-red-50 text-red-600 px-3 py-1 rounded-md uppercase">Delete</button>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        // START EDIT MODE
+        window.startEdit = (id, data) => {
+            document.getElementById('edit-doc-id').value = id;
+            document.getElementById('p-image-url').value = data.imageUrl;
+            document.getElementById('p-name').value = data.name;
+            document.getElementById('p-price').value = data.price;
+            document.getElementById('p-stock').value = data.stock;
+            document.getElementById('p-sizes').value = data.sizes || "";
+            document.getElementById('p-desc').value = data.description;
+
+            document.getElementById('form-container').classList.add('edit-mode');
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-edit text-amber-500"></i> Editing: ${data.name}`;
+            document.getElementById('cancel-edit').classList.remove('hidden');
+            submitBtn.innerText = "UPDATE PRODUCT";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // RESET FORM
+        window.resetForm = () => {
+            form.reset();
+            document.getElementById('edit-doc-id').value = "";
+            document.getElementById('form-container').classList.remove('edit-mode');
+            document.getElementById('form-title').innerHTML = `<i class="fas fa-plus-circle text-green-500"></i> Add New Product`;
+            document.getElementById('cancel-edit').classList.add('hidden');
+            submitBtn.innerText = "SAVE PRODUCT";
+        };
+
+        // SAVE OR UPDATE
+        form.onsubmit = async (e) => {
             e.preventDefault();
-
-            submitBtn.disabled = true;
-            btnText.innerText = "SAVING...";
-            btnLoader.classList.remove('hidden');
-
+            const id = document.getElementById('edit-doc-id').value;
+            
             const productData = {
+                imageUrl: document.getElementById('p-image-url').value,
                 name: document.getElementById('p-name').value,
                 price: parseFloat(document.getElementById('p-price').value),
                 stock: parseInt(document.getElementById('p-stock').value),
+                sizes: document.getElementById('p-sizes').value,
                 description: document.getElementById('p-desc').value,
-                imageUrl: urlInput.value.trim(),
                 timestamp: serverTimestamp()
             };
 
             try {
-                await addDoc(collection(db, "products"), productData);
-                alert("Success! Item added to shop.");
-                productForm.reset();
-                previewBox.classList.add('hidden');
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Upload failed. Check your Firebase Rules.");
-            } finally {
-                submitBtn.disabled = false;
-                btnText.innerText = "UPLOAD PRODUCT";
-                btnLoader.classList.add('hidden');
+                if (id) {
+                    await updateDoc(doc(db, "products", id), productData);
+                    alert("Product updated!");
+                } else {
+                    await addDoc(collection(db, "products"), productData);
+                    alert("Product added!");
+                }
+                resetForm();
+                fetchProducts();
+            } catch (err) { alert("Action failed: " + err.message); }
+        };
+
+        // DELETE PRODUCT
+        window.deleteProduct = async (id) => {
+            if (confirm("Delete this item permanently?")) {
+                await deleteDoc(doc(db, "products", id));
+                fetchProducts();
             }
         };
+
+        fetchProducts();
     </script>
 </body>
 </html>
