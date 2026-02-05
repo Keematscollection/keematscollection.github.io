@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keemat Admin</title>
+    <style>
+        body { font-family: sans-serif; background: #000; color: white; padding: 20px; }
+        .card { background: #1a1a1a; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 20px; border: 1px solid #333; }
+        .rev { color: #25D366; font-size: 2rem; font-weight: 900; margin: 5px 0; }
+        .btn-nav { background: #d4af37; color: black; padding: 15px; border: none; border-radius: 10px; width: 100%; font-weight: bold; font-size: 1rem; cursor: pointer; margin-bottom: 10px; }
+        .order-box { background: white; color: black; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 6px solid #25D366; }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">KEEMAT DASHBOARD</h2>
+
+<div class="card">
+    <div style="color: #888; font-size: 0.8rem;">TOTAL REVENUE</div>
+    <div class="rev" id="totalRev">GHS 0.00</div>
+    <div style="color: #888; font-size: 0.8rem; margin-top:10px;">TOTAL ORDERS</div>
+    <div style="font-size: 1.5rem; font-weight: bold;" id="orderCount">0</div>
+</div>
+
+<button class="btn-nav" onclick="window.location.href='melmas_production.html'">GO TO INVENTORY</button>
+<button style="background:#333; color:white;" class="btn-nav" onclick="location.reload()">REFRESH ORDERS</button>
+
+<div id="ordersList"></div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
+      authDomain: "keematscollection.firebaseapp.com",
+      projectId: "keematscollection",
+      storageBucket: "keematscollection.firebasestorage.app",
+      messagingSenderId: "344751322745",
+      appId: "1:344751322745:web:b57abb74c33056a0b886a8",
+      measurementId: "G-PPS020WTZ2",
+      databaseURL: "https://keematscollection-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    onValue(ref(db, 'orders'), (snapshot) => {
+        const data = snapshot.val();
+        let total = 0; let count = 0; let html = "";
+        if(data) {
+            Object.values(data).reverse().forEach(o => {
+                total += parseFloat(o.totalAmount || 0);
+                count++;
+                html += `<div class="order-box">
+                    <strong>${o.orderId} - ${o.customerName}</strong><br>
+                    Phone: ${o.contact} | Loc: ${o.location}<br>
+                    <span style="color: #25D366; font-weight:bold;">Amount: GHS ${o.totalAmount}</span>
+                </div>`;
+            });
+        }
+        document.getElementById('totalRev').innerText = `GHS ${total.toFixed(2)}`;
+        document.getElementById('orderCount').innerText = count;
+        document.getElementById('ordersList').innerHTML = html;
+    });
+</script>
+</body>
+</html>
