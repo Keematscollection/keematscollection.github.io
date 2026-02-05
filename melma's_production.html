@@ -12,7 +12,7 @@
     <nav class="bg-black text-white p-6 shadow-xl mb-8">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold tracking-widest uppercase">Add New Stock</h1>
-            <a href="admin.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
+            <a href="melma's_order.html" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded-lg text-sm transition">
                 <i class="fas fa-arrow-left mr-2"></i> Dashboard
             </a>
         </div>
@@ -22,6 +22,16 @@
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <form id="product-form" class="p-8 space-y-5">
                 
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Image URL (from Postimg)</label>
+                    <input type="url" id="p-image-url" required placeholder="https://postimg.cc/..." 
+                           class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition">
+                    <div id="preview-box" class="mt-4 hidden border border-gray-100 rounded-xl overflow-hidden bg-gray-50 p-2">
+                         <p class="text-[9px] text-gray-400 uppercase mb-2 text-center">Image Preview</p>
+                         <img id="url-preview" class="mx-auto h-40 object-contain">
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Item Name</label>
                     <input type="text" id="p-name" required placeholder="e.g. Vintage Graphic Tee" 
@@ -43,7 +53,7 @@
 
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Description</label>
-                    <textarea id="p-desc" rows="4" required placeholder="Describe the item material, size, and fit..." 
+                    <textarea id="p-desc" rows="3" required placeholder="Describe the item material, size, and fit..." 
                               class="w-full px-4 py-3 rounded-xl border-2 border-gray-100 focus:border-black outline-none transition"></textarea>
                 </div>
 
@@ -60,7 +70,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
-        // Using your specific Firebase config
         const firebaseConfig = {
             apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
             authDomain: "keematscollection.firebaseapp.com",
@@ -77,32 +86,45 @@
         const submitBtn = document.getElementById('submit-btn');
         const btnText = document.getElementById('btn-text');
         const btnLoader = document.getElementById('btn-loader');
+        const urlInput = document.getElementById('p-image-url');
+        const previewBox = document.getElementById('preview-box');
+        const urlPreview = document.getElementById('url-preview');
+
+        urlInput.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            if (val.startsWith('http')) {
+                urlPreview.src = val;
+                previewBox.classList.remove('hidden');
+            } else {
+                previewBox.classList.add('hidden');
+            }
+        });
 
         productForm.onsubmit = async (e) => {
             e.preventDefault();
 
-            // UI Feedback: Loading state
             submitBtn.disabled = true;
-            btnText.innerText = "UPLOADING...";
+            btnText.innerText = "SAVING...";
             btnLoader.classList.remove('hidden');
 
-            const newProduct = {
+            const productData = {
                 name: document.getElementById('p-name').value,
                 price: parseFloat(document.getElementById('p-price').value),
                 stock: parseInt(document.getElementById('p-stock').value),
                 description: document.getElementById('p-desc').value,
-                timestamp: serverTimestamp() // To sort by newest arrival
+                imageUrl: urlInput.value.trim(),
+                timestamp: serverTimestamp()
             };
 
             try {
-                await addDoc(collection(db, "products"), newProduct);
-                alert("Success! " + newProduct.name + " is now in your database.");
+                await addDoc(collection(db, "products"), productData);
+                alert("Success! Item added to shop.");
                 productForm.reset();
+                previewBox.classList.add('hidden');
             } catch (error) {
-                console.error("Upload Error:", error);
-                alert("Error: " + error.message);
+                console.error("Error:", error);
+                alert("Upload failed. Check your Firebase Rules.");
             } finally {
-                // UI Feedback: Reset state
                 submitBtn.disabled = false;
                 btnText.innerText = "UPLOAD PRODUCT";
                 btnLoader.classList.add('hidden');
@@ -111,4 +133,3 @@
     </script>
 </body>
 </html>
-
