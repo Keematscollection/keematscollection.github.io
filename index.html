@@ -26,7 +26,7 @@
         
         .sticky-search {
             position: sticky;
-            top: 72px; /* Adjusted for centered navbar height */
+            top: 72px;
             z-index: 40;
             background: rgba(249, 249, 249, 0.9);
             backdrop-filter: blur(5px);
@@ -49,7 +49,6 @@
             z-index: 100;
             transition: all 0.3s ease;
         }
-        .help-btn:hover { transform: scale(1.05); background-color: #128c7e; }
     </style>
 </head>
 <body class="text-gray-800 relative">
@@ -68,8 +67,7 @@
         </div>
     </nav>
 
-    <a href="https://wa.me/233554011014?text=Hello%20Keemat's%20Collection,%20I%20need%20help/have%20a%20complaint%20regarding..." 
-       target="_blank" class="help-btn">
+    <a href="https://wa.me/233554011014?text=Hello%20Keemat's%20Collection..." target="_blank" class="help-btn">
         <i class="fab fa-whatsapp text-xl"></i>
         <span>Help & Complaints</span>
     </a>
@@ -112,18 +110,18 @@
                 <div class="bg-blue-50 border-l-4 border-blue-500 p-3 mt-4 mb-4">
                     <p class="text-[11px] text-blue-800 leading-tight">
                         <i class="fas fa-info-circle mr-1"></i>
-                        <strong>Delivery Info:</strong> Tamale deliveries cost <strong>GHS 20</strong>. For locations outside Tamale, costs will be communicated shortly after product payment.
+                        <strong>Delivery Info:</strong> Tamale deliveries cost <strong>GHS 20</strong>. For locations outside Tamale, costs will be communicated shortly.
                     </p>
                 </div>
 
-                <button type="submit" class="w-full bg-black text-white py-3 rounded font-bold uppercase tracking-widest hover:bg-gray-800 transition">Confirm Order</button>
+                <button type="submit" id="submit-btn" class="w-full bg-black text-white py-3 rounded font-bold uppercase tracking-widest hover:bg-gray-800 transition">Confirm Order</button>
             </form>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
@@ -157,7 +155,6 @@
 
         function renderProduct(id, data) {
             if (!data.name) return;
-
             const grid = document.getElementById('product-grid');
             const isOut = data.stock <= 0;
             const card = document.createElement('div');
@@ -176,9 +173,7 @@
                             <i class="fas fa-share-alt"></i>
                         </button>
                     </div>
-                    
                     <p class="text-xs text-gray-500 italic mb-2 line-clamp-2">${data.description || ''}</p>
-                    
                     <p class="text-lg font-bold gold-accent mb-3">GHS ${data.price}</p>
                     <div class="mt-auto">
                         <div class="flex items-center justify-between mb-3 ${isOut ? 'hidden' : ''}">
@@ -199,20 +194,8 @@
         }
 
         window.shareProduct = async (name, price) => {
-            const shareData = {
-                title: "Keemat's Collection",
-                text: `Check out this ${name} for only GHS ${price} at Keemat's Collection!`,
-                url: window.location.href
-            };
-
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`;
-                    window.open(whatsappUrl, '_blank');
-                }
-            } catch (err) { console.log('Share cancelled or failed'); }
+            const shareData = { title: "Keemat's Collection", text: `Check out ${name} for GHS ${price}!`, url: window.location.href };
+            try { if (navigator.share) await navigator.share(shareData); else window.open(`https://wa.me/?text=${encodeURIComponent(shareData.text + " " + shareData.url)}`, '_blank'); } catch (err) {}
         };
 
         window.changeQtyUI = (id, delta) => {
@@ -224,53 +207,28 @@
 
         window.addToCart = (id) => {
             const p = products.find(x => x.id === id);
-            const qtyInput = document.getElementById(`qty-${id}`);
-            const qty = parseInt(qtyInput ? qtyInput.innerText : 1);
-            
+            const qty = parseInt(document.getElementById(`qty-${id}`).innerText);
             flyToCart(document.getElementById(`img-${id}`));
-
             const existing = cart.find(item => item.id === id);
-            if (existing) {
-                existing.qty += qty;
-            } else {
-                cart.push({ ...p, qty: qty });
-            }
-
+            if (existing) existing.qty += qty; else cart.push({ ...p, qty: qty });
             setTimeout(() => { updateCartUI(); animateCartIcon(); }, 800);
         };
 
         function updateCartUI() {
-            const count = cart.reduce((sum, item) => sum + item.qty, 0);
-            document.getElementById('cart-count').innerText = count;
-            
+            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
             const list = document.getElementById('cart-items');
-            if (cart.length === 0) {
-                list.innerHTML = '<p class="text-center py-4 text-gray-400">Your cart is empty</p>';
-            } else {
-                list.innerHTML = cart.map(item => `
-                    <div class="flex justify-between items-center text-sm mb-3 border-b pb-2">
-                        <div class="flex flex-col">
-                            <span class="font-bold">${item.name}</span>
-                            <span class="text-xs text-gray-500">GHS ${item.price} x ${item.qty}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <span class="font-bold mr-2">GHS ${(item.price * item.qty).toFixed(2)}</span>
-                            <button onclick="removeFromCart('${item.id}')" class="text-red-500 p-2"><i class="fas fa-trash text-sm"></i></button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            document.getElementById('cart-total').innerText = total.toFixed(2);
+            list.innerHTML = cart.length === 0 ? '<p class="text-center py-4 text-gray-400">Your cart is empty</p>' : 
+                cart.map(i => `<div class="flex justify-between items-center text-sm mb-3 border-b pb-2">
+                    <div><span class="font-bold">${i.name}</span><br><span class="text-xs text-gray-500">GHS ${i.price} x ${i.qty}</span></div>
+                    <div class="flex items-center gap-1"><span class="font-bold mr-2">GHS ${(i.price * i.qty).toFixed(2)}</span>
+                    <button onclick="removeFromCart('${i.id}')" class="text-red-500 p-2"><i class="fas fa-trash text-sm"></i></button></div>
+                </div>`).join('');
+            document.getElementById('cart-total').innerText = cart.reduce((s, i) => s + (i.price * i.qty), 0).toFixed(2);
         }
 
-        window.removeFromCart = (id) => {
-            cart = cart.filter(item => item.id !== id);
-            updateCartUI();
-        };
-
+        window.removeFromCart = (id) => { cart = cart.filter(i => i.id !== id); updateCartUI(); };
         window.clearCart = () => { if(confirm("Empty cart?")) { cart = []; updateCartUI(); } };
+        window.toggleCart = () => document.getElementById('checkout-modal').classList.toggle('hidden');
 
         function flyToCart(img) {
             const icon = document.getElementById('cart-icon');
@@ -280,9 +238,7 @@
             fly.className = "fly-item";
             fly.style.cssText = `top:${r.top}px; left:${r.left}px; width:${r.width}px; height:${r.height}px;`;
             document.body.appendChild(fly);
-            requestAnimationFrame(() => {
-                fly.style.cssText = `top:${cr.top}px; left:${cr.left}px; width:20px; height:20px; opacity:0;`;
-            });
+            requestAnimationFrame(() => fly.style.cssText = `top:${cr.top}px; left:${cr.left}px; width:20px; height:20px; opacity:0;`);
             setTimeout(() => fly.remove(), 800);
         }
 
@@ -292,37 +248,59 @@
             setTimeout(() => icon.classList.remove('cart-animate'), 400);
         }
 
-        window.toggleCart = () => document.getElementById('checkout-modal').classList.toggle('hidden');
-
-        document.getElementById('search-input').onkeyup = (e) => {
+        document.getElementById('search-input').oninput = (e) => {
             const q = e.target.value.toLowerCase();
-            document.querySelectorAll('.product-card').forEach(c => {
-                c.style.display = c.dataset.name.includes(q) ? 'flex' : 'none';
-            });
+            document.querySelectorAll('.product-card').forEach(c => c.style.display = c.dataset.name.includes(q) ? 'flex' : 'none');
         };
 
-        document.getElementById('checkout-form').onsubmit = (e) => {
+        // --- INTEGRATED FIREBASE & WHATSAPP CHECKOUT ---
+        document.getElementById('checkout-form').onsubmit = async (e) => {
             e.preventDefault();
             if(cart.length === 0) return alert("Cart is empty");
-            
-            const name = document.getElementById('cust-name').value;
-            const loc = document.getElementById('cust-loc').value;
-            const items = cart.map(i => `- ${i.name} (x${i.qty})`).join('%0a');
-            const total = document.getElementById('cart-total').innerText;
-            
-            const msg = `*NEW ORDER @ KEEMAT'S*%0aName: ${name}%0aLocation: ${loc}%0aItems:%0a${items}%0aTotal: GHS ${total}%0a%0a_Note: Delivery within Tamale is GHS 20. Other locations will be discussed after payment._`;
-            
-            window.open(`https://wa.me/233554011014?text=${msg}`, '_blank');
-            
-            setTimeout(() => {
-                alert(`Thank you for shopping with Keemat's Collection, ${name}! Your order has been sent. We look forward to serving you again soon! ✨`);
-            }, 500);
 
-            cart = []; updateCartUI(); toggleCart();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "PROCESSING...";
+
+            const orderData = {
+                customerName: document.getElementById('cust-name').value,
+                contact: document.getElementById('cust-contact').value,
+                location: document.getElementById('cust-loc').value,
+                items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+                totalAmount: document.getElementById('cart-total').innerText,
+                status: "Pending",
+                timestamp: new Date(),
+                orderId: Math.floor(100000 + Math.random() * 900000).toString()
+            };
+
+            try {
+                // 1. Save to Database
+                await addDoc(collection(db, "orders"), orderData);
+                
+                // 2. Format WhatsApp Message
+                const itemsList = cart.map(i => `- ${i.name} (x${i.qty})`).join('%0a');
+                const msg = `*NEW ORDER #${orderData.orderId}*%0aName: ${orderData.customerName}%0aLoc: ${orderData.location}%0aItems:%0a${itemsList}%0aTotal: GHS ${orderData.totalAmount}%0a%0a_Note: Delivery outside Tamale costs will be shared soon._`;
+                
+                // 3. Send via WhatsApp
+                window.open(`https://wa.me/233554011014?text=${msg}`, '_blank');
+
+                // 4. Reset UI
+                alert("✅ Order Sent! Order ID: " + orderData.orderId);
+                cart = []; 
+                updateCartUI(); 
+                toggleCart();
+                e.target.reset();
+
+            } catch (error) {
+                alert("❌ Order Failed: " + error.message);
+                console.error("Firebase Error:", error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "CONFIRM ORDER";
+            }
         };
 
         loadProducts();
     </script>
 </body>
 </html>
-
