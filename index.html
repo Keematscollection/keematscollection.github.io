@@ -1,243 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Keemat's Collection</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #000;
-            --accent: #d4af37;
-            --bg: #f4f4f4;
-        }
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 0;
-            background: var(--bg);
-            padding-bottom: 60px;
-        }
-
+        :root { --primary: #000; --accent: #d4af37; --bg: #f4f4f4; }
+        body { font-family: sans-serif; margin: 0; padding: 0; background: var(--bg); padding-bottom: 60px; }
+        
         /* Header */
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-        h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-        }
-        .slogan {
-            color: var(--accent);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            font-weight: bold;
-        }
-
-        .header-img {
-            width: 100%;
-            max-width: 220px;
-            margin-top: 10px;
-            border-radius: 8px;
-        }
-
-        /* Adjusted Cart Icon: moved down a bit */
-        .cart-icon {
-            position: absolute;
-            top: 35px; /* moved down from 20px */
-            right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--accent);
-        }
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: red;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 0.8rem;
-        }
+        header { background: var(--primary); color: white; padding: 20px; text-align: center; position: relative; }
+        h1 { margin: 0; font-size: 1.5rem; letter-spacing: 2px; }
+        .slogan { color: var(--accent); font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
+        
+        /* --- CHANGE MADE HERE: Reduced max-width from 300px to 220px --- */
+        .header-img { width: 100%; max-width: 220px; margin-top: 10px; border-radius: 8px; }
+        
+        /* Cart Icon */
+        .cart-icon { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--accent); }
+        .cart-count { position: absolute; top: -8px; right: -8px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.8rem; }
 
         /* Search */
-        .search-container {
-            padding: 15px;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            box-sizing: border-box;
-            outline: none;
-        }
+        .search-container { padding: 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 20px; box-sizing: border-box; outline: none; }
 
         /* Products Grid */
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 10px;
-        }
-        .product-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            padding-bottom: 10px;
-            position: relative;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .product-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-        .p-details {
-            padding: 10px;
-        }
-        .p-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-        }
-        .p-price {
-            color: var(--accent);
-            font-weight: bold;
-        }
-        .p-stock {
-            font-size: 0.8rem;
-            color: #666;
-        }
-        .btn-add {
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
+        .product-card { background: white; border-radius: 10px; overflow: hidden; padding-bottom: 10px; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .product-img { width: 100%; height: 180px; object-fit: cover; }
+        .p-details { padding: 10px; }
+        .p-name { font-weight: bold; margin-bottom: 5px; font-size: 0.95rem; }
+        .p-price { color: var(--accent); font-weight: bold; }
+        .p-stock { font-size: 0.8rem; color: #666; }
+        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 8px; margin-top: 5px; cursor: pointer; border-radius: 5px; }
+        
         /* Out of Stock Overlay */
-        .out-of-stock {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: red;
-            transform: rotate(-15deg);
-            font-size: 1.5rem;
-            border: 2px solid red;
-            z-index: 5;
-        }
+        .out-of-stock { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; font-weight: bold; color: red; transform: rotate(-15deg); font-size: 1.5rem; border: 2px solid red; z-index: 5; }
 
         /* Floating WhatsApp */
-        .whatsapp-float {
-            position: fixed;
-            bottom: 80px;
-            left: 20px;
-            background: #25D366;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            z-index: 99;
-            text-decoration: none;
-        }
+        .whatsapp-float { position: fixed; bottom: 80px; left: 20px; background: #25D366; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); z-index: 99; text-decoration: none;}
 
         /* Cart Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        .modal-content {
-            background: white;
-            margin: 10% auto;
-            padding: 20px;
-            width: 90%;
-            border-radius: 10px;
-        }
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
-        }
-        .checkout-form input, .checkout-form select {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-        }
-        .total-box {
-            background: #f9f9f9;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 5px;
-        }
-        .copy-btn {
-            background: #eee;
-            border: 1px solid #ccc;
-            padding: 2px 5px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto; }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 90%; border-radius: 10px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .checkout-form input, .checkout-form select { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; }
+        .total-box { background: #f9f9f9; padding: 15px; margin-top: 15px; border-radius: 5px; }
+        .copy-btn { background: #eee; border: 1px solid #ccc; padding: 2px 5px; font-size: 0.8rem; cursor: pointer; }
 
         /* Animation */
-        .flying-img {
-            position: fixed;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            z-index: 9999;
-            transition: all 0.8s ease-in-out;
-            object-fit: cover;
-            pointer-events: none;
-        }
+        .flying-img { position: fixed; width: 50px; height: 50px; border-radius: 50%; z-index: 9999; transition: all 0.8s ease-in-out; object-fit: cover; pointer-events: none; }
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.8rem;
-            color: #666;
-        }
-        .back-to-top {
-            display: block;
-            margin-top: 10px;
-            color: var(--accent);
-            text-decoration: none;
-        }
+        footer { text-align: center; padding: 20px; font-size: 0.8rem; color: #666; }
+        .back-to-top { display: block; margin-top: 10px; color: var(--accent); text-decoration: none; }
     </style>
 </head>
 <body>
@@ -245,8 +61,8 @@
 <header>
     <h1>KEEMAT'S COLLECTION</h1>
     <div class="slogan">Quality and Affordability</div>
-    <img src="https://i.postimg.cc/gJ3Vghv1/1770284170262.png" class="header-img" alt="Banner" />
-
+    <img src="https://i.postimg.cc/gJ3Vghv1/1770284170262.png" class="header-img" alt="Banner">
+    
     <div class="cart-icon" onclick="openCart()">
         <i class="fas fa-shopping-bag"></i>
         <span class="cart-count" id="cartCount">0</span>
@@ -254,10 +70,11 @@
 </header>
 
 <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search for outfits..." onkeyup="filterProducts()" />
+    <input type="text" id="searchInput" placeholder="Search for outfits..." onkeyup="filterProducts()">
 </div>
 
-<div class="product-grid" id="productContainer"></div>
+<div class="product-grid" id="productContainer">
+    </div>
 
 <a href="https://wa.me/233554011014" class="whatsapp-float"><i class="fab fa-whatsapp"></i></a>
 
@@ -271,7 +88,7 @@
     <div class="modal-content">
         <h2>Your Cart <span style="float:right; font-size:0.8rem; color:red; cursor:pointer" onclick="clearCart()">Clear All</span></h2>
         <div id="cartItems"></div>
-
+        
         <div class="total-box">
             <h3>Total: GHS <span id="cartTotal">0</span></h3>
             <p style="font-size: 0.8rem; color: #666;">Delivery: 20 GHS (Tamale)</p>
@@ -279,18 +96,16 @@
 
         <h3>Checkout Details</h3>
         <div class="checkout-form">
-            <input type="text" id="cName" placeholder="Full Name" required />
-            <input type="tel" id="cPhone" placeholder="Contact Number" required />
-            <input type="text" id="cLoc" placeholder="Location" required />
-
+            <input type="text" id="cName" placeholder="Full Name" required>
+            <input type="tel" id="cPhone" placeholder="Contact Number" required>
+            <input type="text" id="cLoc" placeholder="Location" required>
+            
             <div style="background: #eef; padding: 10px; border-radius: 5px; margin: 10px 0;">
-                <strong>Payment (Momo):</strong><br />
-                Rasheed Hikmatu<br />
-                <span id="momoNumber">0554011014</span>
+                <strong>Payment (Momo):</strong><br>
+                Rasheed Hikmatu<br>
+                <span id="momoNumber">0554011014</span> 
                 <button class="copy-btn" onclick="copyMomo()">Copy</button>
-                <p style="font-size:0.7rem; margin-top:5px;">
-                    Please make payment before confirming. Delivery outside Tamale discussed after payment.
-                </p>
+                <p style="font-size:0.7rem; margin-top:5px;">Please make payment before confirming. Delivery outside Tamale discussed after payment.</p>
             </div>
 
             <button class="btn-add" onclick="processOrder()">CONFIRM ORDER</button>
@@ -301,17 +116,18 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+    import { getDatabase, ref, onValue, push, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
+    // --- PROVIDED FIREBASE CONFIG ---
     const firebaseConfig = {
-        apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
-        authDomain: "keematscollection.firebaseapp.com",
-        projectId: "keematscollection",
-        storageBucket: "keematscollection.firebasestorage.app",
-        messagingSenderId: "344751322745",
-        appId: "1:344751322745:web:b57abb74c33056a0b886a8",
-        measurementId: "G-PPS020WTZ2",
-        databaseURL: "https://keematscollection-default-rtdb.firebaseio.com"
+      apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
+      authDomain: "keematscollection.firebaseapp.com",
+      projectId: "keematscollection",
+      storageBucket: "keematscollection.firebasestorage.app",
+      messagingSenderId: "344751322745",
+      appId: "1:344751322745:web:b57abb74c33056a0b886a8",
+      measurementId: "G-PPS020WTZ2",
+      databaseURL: "https://keematscollection-default-rtdb.firebaseio.com"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -320,6 +136,7 @@
     let products = [];
     let cart = JSON.parse(localStorage.getItem('keematCart')) || [];
 
+    // Load Products
     const productRef = ref(db, 'products');
     onValue(productRef, (snapshot) => {
         const data = snapshot.val();
@@ -329,7 +146,7 @@
 
         if (data) {
             Object.keys(data).forEach(key => {
-                products.push({ id: key, ...data[key] });
+                products.push({id: key, ...data[key]});
             });
             renderProducts(products);
         }
@@ -365,20 +182,21 @@
     window.addToCart = (id) => {
         const product = products.find(p => p.id === id);
         const qty = parseInt(document.getElementById(`qty-${id}`).value);
-
+        
+        // Flying Animation
         const img = document.getElementById(`img-${id}`);
         const cartIcon = document.querySelector('.cart-icon');
         if(img && cartIcon) {
             const flyImg = img.cloneNode();
             flyImg.classList.add('flying-img');
-
+            
             const rect = img.getBoundingClientRect();
             const cartRect = cartIcon.getBoundingClientRect();
-
+            
             flyImg.style.left = rect.left + 'px';
             flyImg.style.top = rect.top + 'px';
             document.body.appendChild(flyImg);
-
+            
             setTimeout(() => {
                 flyImg.style.left = cartRect.left + 'px';
                 flyImg.style.top = cartRect.top + 'px';
@@ -386,10 +204,11 @@
                 flyImg.style.height = '10px';
                 flyImg.style.opacity = '0';
             }, 10);
-
+            
             setTimeout(() => flyImg.remove(), 800);
         }
 
+        // Add Logic
         const existing = cart.find(c => c.id === id);
         if(existing) {
             existing.qty += qty;
@@ -408,7 +227,7 @@
         const modal = document.getElementById('cartModal');
         const list = document.getElementById('cartItems');
         let total = 0;
-
+        
         list.innerHTML = cart.map((item, index) => {
             const sub = item.price * item.qty;
             total += sub;
@@ -424,7 +243,7 @@
                 </div>
             `;
         }).join('');
-
+        
         document.getElementById('cartTotal').innerText = total;
         modal.style.display = 'block';
     }
@@ -450,14 +269,14 @@
         const name = document.getElementById('cName').value;
         const phone = document.getElementById('cPhone').value;
         const loc = document.getElementById('cLoc').value;
-
+        
         if(!name || !phone || !loc) { alert("Please fill all details"); return; }
         if(cart.length === 0) { alert("Cart is empty"); return; }
 
         const orderId = 'KC-' + Math.floor(100000 + Math.random() * 900000);
         let subtotal = 0;
         let itemString = "";
-
+        
         cart.forEach(c => {
             subtotal += (c.price * c.qty);
             itemString += `${c.name} (${c.size}) x${c.qty}, `;
@@ -475,505 +294,19 @@
             timestamp: serverTimestamp()
         };
 
+        // Save to Firebase
         push(ref(db, 'orders'), orderData).then(() => {
+            // Build WhatsApp Message
             const msg = `*NEW ORDER: ${orderId}*%0AName: ${name}%0AContact: ${phone}%0ALocation: ${loc}%0AItems: ${itemString}%0ATotal: GHS ${total} (w/ Delivery)%0A%0A*Please find attached screenshot of payment.*`;
-
+            
+            // Clear cart and redirect
             cart = [];
             updateCart();
             window.location.href = `https://wa.me/233554011014?text=${msg}`;
         });
     }
 
-    updateCart();
-</script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Keemat's Collection</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <style>
-        :root {
-            --primary: #000;
-            --accent: #d4af37;
-            --bg: #f4f4f4;
-        }
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 0;
-            background: var(--bg);
-            padding-bottom: 60px;
-        }
-
-        /* Header */
-        header {
-            background: var(--primary);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-        h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            letter-spacing: 2px;
-        }
-        .slogan {
-            color: var(--accent);
-            font-size: 0.9rem;
-            margin-top: 5px;
-            font-weight: bold;
-        }
-
-        .header-img {
-            width: 100%;
-            max-width: 220px;
-            margin-top: 10px;
-            border-radius: 8px;
-        }
-
-        /* Adjusted Cart Icon: moved down a bit */
-        .cart-icon {
-            position: absolute;
-            top: 35px; /* moved down from 20px */
-            right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--accent);
-        }
-        .cart-count {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: red;
-            color: white;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 0.8rem;
-        }
-
-        /* Search */
-        .search-container {
-            padding: 15px;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        /* Products Grid */
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 10px;
-        }
-        .product-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            padding-bottom: 10px;
-            position: relative;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .product-img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-        .p-details {
-            padding: 10px;
-        }
-        .p-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-        }
-        .p-price {
-            color: var(--accent);
-            font-weight: bold;
-        }
-        .p-stock {
-            font-size: 0.8rem;
-            color: #666;
-        }
-        .btn-add {
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        /* Out of Stock Overlay */
-        .out-of-stock {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: red;
-            transform: rotate(-15deg);
-            font-size: 1.5rem;
-            border: 2px solid red;
-            z-index: 5;
-        }
-
-        /* Floating WhatsApp */
-        .whatsapp-float {
-            position: fixed;
-            bottom: 80px;
-            left: 20px;
-            background: #25D366;
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-            z-index: 99;
-            text-decoration: none;
-        }
-
-        /* Cart Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        .modal-content {
-            background: white;
-            margin: 10% auto;
-            padding: 20px;
-            width: 90%;
-            border-radius: 10px;
-        }
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
-        }
-        .checkout-form input, .checkout-form select {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-        }
-        .total-box {
-            background: #f9f9f9;
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 5px;
-        }
-        .copy-btn {
-            background: #eee;
-            border: 1px solid #ccc;
-            padding: 2px 5px;
-            font-size: 0.8rem;
-            cursor: pointer;
-        }
-
-        /* Animation */
-        .flying-img {
-            position: fixed;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            z-index: 9999;
-            transition: all 0.8s ease-in-out;
-            object-fit: cover;
-            pointer-events: none;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            font-size: 0.8rem;
-            color: #666;
-        }
-        .back-to-top {
-            display: block;
-            margin-top: 10px;
-            color: var(--accent);
-            text-decoration: none;
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>KEEMAT'S COLLECTION</h1>
-    <div class="slogan">Quality and Affordability</div>
-    <img src="https://i.postimg.cc/gJ3Vghv1/1770284170262.png" class="header-img" alt="Banner" />
-
-    <div class="cart-icon" onclick="openCart()">
-        <i class="fas fa-shopping-bag"></i>
-        <span class="cart-count" id="cartCount">0</span>
-    </div>
-</header>
-
-<div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search for outfits..." onkeyup="filterProducts()" />
-</div>
-
-<div class="product-grid" id="productContainer"></div>
-
-<a href="https://wa.me/233554011014" class="whatsapp-float"><i class="fab fa-whatsapp"></i></a>
-
-<footer>
-    <h3>About Us</h3>
-    <p>We provide the best quality fashion at prices that fit your pocket.</p>
-    <a href="#" class="back-to-top">Back to Top</a>
-</footer>
-
-<div id="cartModal" class="modal">
-    <div class="modal-content">
-        <h2>Your Cart <span style="float:right; font-size:0.8rem; color:red; cursor:pointer" onclick="clearCart()">Clear All</span></h2>
-        <div id="cartItems"></div>
-
-        <div class="total-box">
-            <h3>Total: GHS <span id="cartTotal">0</span></h3>
-            <p style="font-size: 0.8rem; color: #666;">Delivery: 20 GHS (Tamale)</p>
-        </div>
-
-        <h3>Checkout Details</h3>
-        <div class="checkout-form">
-            <input type="text" id="cName" placeholder="Full Name" required />
-            <input type="tel" id="cPhone" placeholder="Contact Number" required />
-            <input type="text" id="cLoc" placeholder="Location" required />
-
-            <div style="background: #eef; padding: 10px; border-radius: 5px; margin: 10px 0;">
-                <strong>Payment (Momo):</strong><br />
-                Rasheed Hikmatu<br />
-                <span id="momoNumber">0554011014</span>
-                <button class="copy-btn" onclick="copyMomo()">Copy</button>
-                <p style="font-size:0.7rem; margin-top:5px;">
-                    Please make payment before confirming. Delivery outside Tamale discussed after payment.
-                </p>
-            </div>
-
-            <button class="btn-add" onclick="processOrder()">CONFIRM ORDER</button>
-            <button onclick="document.getElementById('cartModal').style.display='none'" style="width:100%; margin-top:10px; padding:10px; background:#ddd; border:none; border-radius:5px;">Close</button>
-        </div>
-    </div>
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyAd8obgpkRPfSUMYr8zJfr8MB_Evmy1nNg",
-        authDomain: "keematscollection.firebaseapp.com",
-        projectId: "keematscollection",
-        storageBucket: "keematscollection.firebasestorage.app",
-        messagingSenderId: "344751322745",
-        appId: "1:344751322745:web:b57abb74c33056a0b886a8",
-        measurementId: "G-PPS020WTZ2",
-        databaseURL: "https://keematscollection-default-rtdb.firebaseio.com"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    let products = [];
-    let cart = JSON.parse(localStorage.getItem('keematCart')) || [];
-
-    const productRef = ref(db, 'products');
-    onValue(productRef, (snapshot) => {
-        const data = snapshot.val();
-        products = [];
-        const container = document.getElementById('productContainer');
-        container.innerHTML = '';
-
-        if (data) {
-            Object.keys(data).forEach(key => {
-                products.push({ id: key, ...data[key] });
-            });
-            renderProducts(products);
-        }
-    });
-
-    window.renderProducts = (list) => {
-        const container = document.getElementById('productContainer');
-        container.innerHTML = list.map(p => `
-            <div class="product-card">
-                ${p.stock <= 0 ? '<div class="out-of-stock">OUT OF STOCK</div>' : ''}
-                <img src="${p.image}" class="product-img" id="img-${p.id}">
-                <div class="p-details">
-                    <div class="p-name">${p.name}</div>
-                    <div class="p-price">GHS ${p.price}</div>
-                    <div class="p-stock">Size: ${p.size} | Stock: ${p.stock}</div>
-                    ${p.stock > 0 ? `
-                        <select id="qty-${p.id}" style="width:100%; margin-bottom:5px;">
-                            ${[1,2,3,4,5].map(n => `<option value="${n}">${n}</option>`).join('')}
-                        </select>
-                        <button class="btn-add" onclick="addToCart('${p.id}')">ADD TO CART</button>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
-    }
-
-    window.filterProducts = () => {
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-        renderProducts(filtered);
-    }
-
-    window.addToCart = (id) => {
-        const product = products.find(p => p.id === id);
-        const qty = parseInt(document.getElementById(`qty-${id}`).value);
-
-        const img = document.getElementById(`img-${id}`);
-        const cartIcon = document.querySelector('.cart-icon');
-        if(img && cartIcon) {
-            const flyImg = img.cloneNode();
-            flyImg.classList.add('flying-img');
-
-            const rect = img.getBoundingClientRect();
-            const cartRect = cartIcon.getBoundingClientRect();
-
-            flyImg.style.left = rect.left + 'px';
-            flyImg.style.top = rect.top + 'px';
-            document.body.appendChild(flyImg);
-
-            setTimeout(() => {
-                flyImg.style.left = cartRect.left + 'px';
-                flyImg.style.top = cartRect.top + 'px';
-                flyImg.style.width = '10px';
-                flyImg.style.height = '10px';
-                flyImg.style.opacity = '0';
-            }, 10);
-
-            setTimeout(() => flyImg.remove(), 800);
-        }
-
-        const existing = cart.find(c => c.id === id);
-        if(existing) {
-            existing.qty += qty;
-        } else {
-            cart.push({...product, qty: qty});
-        }
-        updateCart();
-    }
-
-    window.updateCart = () => {
-        localStorage.setItem('keematCart', JSON.stringify(cart));
-        document.getElementById('cartCount').innerText = cart.length;
-    }
-
-    window.openCart = () => {
-        const modal = document.getElementById('cartModal');
-        const list = document.getElementById('cartItems');
-        let total = 0;
-
-        list.innerHTML = cart.map((item, index) => {
-            const sub = item.price * item.qty;
-            total += sub;
-            return `
-                <div class="cart-item">
-                    <div style="flex:1">
-                        <strong>${item.name}</strong> (${item.size}) x${item.qty}
-                    </div>
-                    <div style="text-align:right">
-                        GHS ${sub}
-                        <i class="fas fa-trash" style="color:red; cursor:pointer; margin-left:10px;" onclick="removeItem(${index})"></i>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        document.getElementById('cartTotal').innerText = total;
-        modal.style.display = 'block';
-    }
-
-    window.removeItem = (index) => {
-        cart.splice(index, 1);
-        updateCart();
-        openCart();
-    }
-
-    window.clearCart = () => {
-        cart = [];
-        updateCart();
-        openCart();
-    }
-
-    window.copyMomo = () => {
-        navigator.clipboard.writeText("0554011014");
-        alert("Number copied!");
-    }
-
-    window.processOrder = () => {
-        const name = document.getElementById('cName').value;
-        const phone = document.getElementById('cPhone').value;
-        const loc = document.getElementById('cLoc').value;
-
-        if(!name || !phone || !loc) { alert("Please fill all details"); return; }
-        if(cart.length === 0) { alert("Cart is empty"); return; }
-
-        const orderId = 'KC-' + Math.floor(100000 + Math.random() * 900000);
-        let subtotal = 0;
-        let itemString = "";
-
-        cart.forEach(c => {
-            subtotal += (c.price * c.qty);
-            itemString += `${c.name} (${c.size}) x${c.qty}, `;
-        });
-
-        const total = subtotal + 20; // + delivery
-
-        const orderData = {
-            orderId: orderId,
-            customerName: name,
-            contact: phone,
-            location: loc,
-            products: cart,
-            totalAmount: total,
-            timestamp: serverTimestamp()
-        };
-
-        push(ref(db, 'orders'), orderData).then(() => {
-            const msg = `*NEW ORDER: ${orderId}*%0AName: ${name}%0AContact: ${phone}%0ALocation: ${loc}%0AItems: ${itemString}%0ATotal: GHS ${total} (w/ Delivery)%0A%0A*Please find attached screenshot of payment.*`;
-
-            cart = [];
-            updateCart();
-            window.location.href = `https://wa.me/233554011014?text=${msg}`;
-        });
-    }
-
+    // Init
     updateCart();
 </script>
 </body>
