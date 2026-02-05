@@ -93,7 +93,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-        // IMPORT AUTH MODULES
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -113,11 +112,7 @@
         const authOverlay = document.getElementById('auth-overlay');
         const adminContent = document.getElementById('admin-main-content');
 
-        // --- AUTHENTICATION LOGIC ---
-
-        // Watch for Login Status
         onAuthStateChanged(auth, (user) => {
-            // Check if logged in AND matches your specific Admin UID
             if (user && user.uid === 'q2LX0nZwGtXMbsW4FKRQztr76eA3') {
                 authOverlay.style.display = 'none';
                 adminContent.style.display = 'block';
@@ -129,7 +124,6 @@
             }
         });
 
-        // Handle Login Submission
         document.getElementById('admin-login-form').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
@@ -141,11 +135,7 @@
             }
         };
 
-        // Logout function
         document.getElementById('btn-logout').onclick = () => signOut(auth);
-
-
-        // --- DASHBOARD DATA LOGIC ---
 
         async function fetchOrders() {
             const container = document.getElementById('orders-container');
@@ -180,14 +170,24 @@
                     const displayDate = orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
                     totalCount++;
+                    
+                    // Fixed: Ensure revenue calculates using numbers, not strings
+                    const amount = parseFloat(order.totalAmount) || 0;
                     if(isPaid) {
-                        const amount = parseFloat(order.totalAmount) || 0;
                         if(orderYear === currentYear) {
                             annualRevenue += amount;
                             if(orderMonth === currentMonth) {
                                 monthlyRevenue += amount;
                             }
                         }
+                    }
+
+                    // Fixed: Handle both Array and String format for items
+                    let itemsHtml = "";
+                    if (Array.isArray(order.items)) {
+                        itemsHtml = order.items.map(i => `<li class="flex justify-between"><span>${i.name} (${i.size || 'N/A'})</span> <span class="text-gray-500">GHS ${i.price}</span></li>`).join('');
+                    } else {
+                        itemsHtml = `<li class="text-gray-700">${order.itemsString || order.items || 'No items listed'}</li>`;
                     }
 
                     const card = document.createElement('div');
@@ -210,14 +210,14 @@
                         
                         <div class="grid grid-cols-2 gap-y-4 text-sm mb-6">
                             <div><p class="text-gray-400 text-xs font-medium">Contact</p><p class="font-bold underline text-blue-600">${order.contact}</p></div>
-                            <div><p class="text-gray-400 text-xs font-medium">Total Amount</p><p class="font-bold text-lg">GHS ${order.totalAmount}</p></div>
+                            <div><p class="text-gray-400 text-xs font-medium">Total Amount</p><p class="font-bold text-lg">GHS ${amount.toFixed(2)}</p></div>
                             <div class="col-span-2"><p class="text-gray-400 text-xs font-medium">Delivery To</p><p class="font-bold text-gray-700">${order.location}</p></div>
                         </div>
 
                         <div class="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-100">
                             <p class="text-[10px] font-bold text-gray-400 uppercase mb-2">Order Items</p>
                             <ul class="text-sm space-y-1">
-                                ${order.items.map(i => `<li class="flex justify-between"><span>${i.name} (x${i.qty})</span> <span class="text-gray-500">GHS ${i.price}</span></li>`).join('')}
+                                ${itemsHtml}
                             </ul>
                         </div>
 
