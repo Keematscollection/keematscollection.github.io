@@ -44,7 +44,7 @@
     </div>
 
     <div id="checkout-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="bg-white rounded-lg max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
             <button onclick="toggleCart()" class="absolute top-2 right-2 text-gray-500 p-2"><i class="fas fa-times text-xl"></i></button>
             <h2 class="text-2xl brand-font mb-4 border-b pb-2 text-center">Your Cart</h2>
             <div id="cart-items" class="mb-4 space-y-2"></div>
@@ -55,7 +55,7 @@
                 <input type="text" id="cust-name" placeholder="Full Name" required class="w-full border p-3 rounded text-sm">
                 <input type="text" id="cust-loc" placeholder="Delivery Location (City/Town)" required class="w-full border p-3 rounded text-sm">
                 <input type="tel" id="cust-contact" placeholder="Contact Number (WhatsApp)" required class="w-full border p-3 rounded text-sm">
-                <button type="submit" id="submit-btn" class="w-full bg-black text-white py-4 rounded font-bold uppercase tracking-widest hover:bg-gray-800 transition">Confirm Order</button>
+                <button type="submit" id="submit-btn" class="w-full bg-black text-white py-4 rounded font-bold uppercase tracking-widest hover:bg-zinc-800 transition">Confirm Order</button>
             </form>
         </div>
     </div>
@@ -66,8 +66,7 @@
                 <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-2">
                     <i class="fas fa-check text-2xl"></i>
                 </div>
-                <h2 class="text-xl font-bold brand-font">Order Sent to Database!</h2>
-                <p class="text-xs text-gray-500">Order ID: <span id="summary-id" class="font-bold text-black"></span></p>
+                <h2 class="text-xl font-bold brand-font text-black">Order ID: <span id="summary-id"></span></h2>
             </div>
 
             <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500 mb-4">
@@ -77,18 +76,16 @@
                     <span class="font-bold text-lg">0554011014</span>
                     <button onclick="navigator.clipboard.writeText('0554011014'); alert('Number Copied!')" class="text-[10px] bg-black text-white px-2 py-1 rounded">COPY</button>
                 </div>
-                <p class="text-[10px] mt-2 text-gray-600 leading-tight">
-                    * Tamale Deliveries: <b>GHS 20</b><br>
-                    * Outside Tamale: Costs shared after payment.
+                <p class="text-[10px] mt-2 text-gray-600 leading-tight italic">
+                    * Tamale Deliveries: GHS 20<br>
+                    * Outside Deliveries: Communicated after payment.
                 </p>
             </div>
 
-            <div class="text-center">
-                <p class="text-xs font-bold text-red-600 mb-3">⚠️ ACTION REQUIRED: SEND PROOF OF PAYMENT</p>
-                <button onclick="sendProofWhatsApp()" class="w-full bg-green-500 text-white py-3 rounded font-bold flex items-center justify-center gap-2">
-                    <i class="fab fa-whatsapp text-lg"></i> SEND PROOF VIA WHATSAPP
-                </button>
-            </div>
+            <p class="text-xs font-bold text-red-600 mb-3 text-center">⚠️ PLEASE SEND SCREENSHOT OF PAYMENT</p>
+            <button onclick="sendProofWhatsApp()" class="w-full bg-green-500 text-white py-3 rounded font-bold flex items-center justify-center gap-2">
+                <i class="fab fa-whatsapp text-lg"></i> SEND PROOF VIA WHATSAPP
+            </button>
         </div>
     </div>
 
@@ -126,7 +123,6 @@
         function renderProduct(id, data) {
             const grid = document.getElementById('product-grid');
             const isOut = data.stock <= 0;
-            // Updated Sizes as requested
             const defaultSizes = ["S", "M", "L", "XL", "XXL"]; 
             
             const card = document.createElement('div');
@@ -136,11 +132,20 @@
                     <img id="img-${id}" src="${data.image}" class="w-full h-full object-cover ${isOut ? 'out-of-stock-img' : ''}">
                 </div>
                 <div class="p-3 flex flex-col flex-grow">
-                    <h3 class="font-bold text-sm mb-1 line-clamp-1">${data.name}</h3>
+                    <h3 class="font-bold text-sm mb-1">${data.name}</h3>
                     <p class="text-sm font-bold gold-accent mb-2">GHS ${data.price}</p>
-                    <select id="size-${id}" class="w-full text-xs border p-2 rounded mb-2 bg-gray-50 outline-none">
-                        ${defaultSizes.map(s => `<option value="${s}">Size: ${s}</option>`).join('')}
-                    </select>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        <select id="size-${id}" class="text-[10px] border p-1 rounded bg-gray-50 outline-none">
+                            ${defaultSizes.map(s => `<option value="${s}">Size: ${s}</option>`).join('')}
+                        </select>
+                        <div class="flex items-center border rounded bg-gray-50 px-1">
+                            <button onclick="changeQtyUI('${id}', -1)" class="px-2 text-xs font-bold">-</button>
+                            <span id="qty-${id}" class="flex-1 text-center text-[10px] font-bold">1</span>
+                            <button onclick="changeQtyUI('${id}', 1)" class="px-2 text-xs font-bold">+</button>
+                        </div>
+                    </div>
+
                     <button onclick="addToCart('${id}')" ${isOut ? 'disabled' : ''}
                         class="mt-auto w-full ${isOut ? 'bg-gray-400' : 'bg-black'} text-white py-2 text-xs rounded font-bold uppercase">
                         ${isOut ? 'Sold Out' : 'Add To Cart'}
@@ -149,24 +154,40 @@
             grid.appendChild(card);
         }
 
+        window.changeQtyUI = (id, delta) => {
+            const el = document.getElementById(`qty-${id}`);
+            let val = parseInt(el.innerText) + delta;
+            if (val < 1) val = 1;
+            el.innerText = val;
+        };
+
         window.addToCart = (id) => {
             const p = products.find(x => x.id === id);
             const size = document.getElementById(`size-${id}`).value;
+            const qty = parseInt(document.getElementById(`qty-${id}`).innerText);
+            
             flyToCart(document.getElementById(`img-${id}`));
-            cart.push({ ...p, selectedSize: size });
+            
+            // Add to cart array
+            cart.push({ ...p, selectedSize: size, qty: qty });
             updateCartUI();
             animateCartIcon();
+            
+            // Reset UI qty back to 1
+            document.getElementById(`qty-${id}`).innerText = "1";
         };
 
         function updateCartUI() {
-            document.getElementById('cart-count').innerText = cart.length;
+            document.getElementById('cart-count').innerText = cart.reduce((total, item) => total + item.qty, 0);
             const list = document.getElementById('cart-items');
             list.innerHTML = cart.map((i, idx) => `
                 <div class="flex justify-between items-center bg-gray-50 p-2 rounded text-xs border">
-                    <div><b>${i.name}</b> (${i.selectedSize})<br>GHS ${i.price}</div>
+                    <div><b>${i.name}</b> (${i.selectedSize})<br>GHS ${i.price} x ${i.qty}</div>
                     <button onclick="removeFromCart(${idx})" class="text-red-500 px-2"><i class="fas fa-trash"></i></button>
                 </div>`).join('');
-            document.getElementById('cart-total').innerText = cart.reduce((s, i) => s + Number(i.price), 0).toFixed(2);
+            
+            const total = cart.reduce((s, i) => s + (parseFloat(i.price) * i.qty), 0);
+            document.getElementById('cart-total').innerText = total.toFixed(2);
         }
 
         window.removeFromCart = (idx) => { cart.splice(idx, 1); updateCartUI(); };
@@ -179,13 +200,17 @@
             submitBtn.innerText = "Processing...";
 
             const orderId = "KC-" + Math.floor(100000 + Math.random() * 900000);
+            const finalTotal = document.getElementById('cart-total').innerText;
+
             currentOrder = {
                 orderId: orderId,
                 customerName: document.getElementById('cust-name').value,
                 contact: document.getElementById('cust-contact').value,
                 location: document.getElementById('cust-loc').value,
-                items: cart.map(i => `${i.name} (${i.selectedSize})`).join(', '),
-                totalAmount: document.getElementById('cart-total').innerText,
+                items: cart.map(i => ({ name: i.name, size: i.selectedSize, qty: i.qty, price: parseFloat(i.price) })),
+                itemsString: cart.map(i => `${i.name} (${i.selectedSize}) x${i.qty}`).join(', '),
+                totalAmount: parseFloat(finalTotal),
+                status: "Pending",
                 timestamp: new Date()
             };
 
@@ -202,11 +227,10 @@
         };
 
         window.sendProofWhatsApp = () => {
-            // Updated WhatsApp Format as requested
             const msg = `*NEW ORDER*%0A%0A` +
                         `*ID:* ${currentOrder.orderId}%0A` +
                         `*Name:* ${currentOrder.customerName}%0A` +
-                        `*Products:* ${currentOrder.items}%0A` +
+                        `*Products:* ${currentOrder.itemsString}%0A` +
                         `*Total:* GHS ${currentOrder.totalAmount}%0A` +
                         `*Location:* ${currentOrder.location}%0A` +
                         `*Contact:* ${currentOrder.contact}%0A%0A` +
@@ -215,7 +239,6 @@
             window.open(`https://wa.me/233554011014?text=${msg}`, '_blank');
         };
 
-        // UI Animations
         function flyToCart(img) {
             const icon = document.getElementById('cart-icon');
             const fly = img.cloneNode();
